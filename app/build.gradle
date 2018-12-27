@@ -7,6 +7,7 @@ android {
         applicationId "com.example.android.streamer"
         minSdkVersion 18
         targetSdkVersion 28
+        multiDexEnabled true
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -42,4 +43,5 @@ dependencies {
     // Firestore
     implementation 'com.google.firebase:firebase-firestore:17.1.2'
     implementation 'com.google.firebase:firebase-core:16.0.6'
+    implementation 'com.android.support:multidex:1.0.3'
 }
