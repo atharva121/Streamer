@@ -1,7 +1,9 @@
-package com.example.android.streamer;
+package com.example.android.streamer.Fragments;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.example.android.streamer.R;
 
 public class MainActivity extends AppCompatActivity
 {

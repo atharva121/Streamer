@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    tools:context=".Fragments.MainActivity"
     android:background="@color/colorPrimaryDark">
 
     <FrameLayout
@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/bottom_media_controller"
         android:layout_alignParentBottom="true"
-        android:name="com.example.android.streamer.MediaControllerFragment" />
+        android:name="com.example.android.streamer.Fragments.MediaControllerFragment" />
 
     <ProgressBar
         android:layout_width="wrap_content"

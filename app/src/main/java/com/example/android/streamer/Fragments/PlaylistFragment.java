@@ -1,4 +1,4 @@
-package com.example.android.streamer;
+package com.example.android.streamer.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -6,10 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class HomeFragment extends Fragment
+import com.example.android.streamer.R;
+
+public class PlaylistFragment extends Fragment
 {
 
-    private static final String TAG = "HomeFragment";
+    private static final String TAG = "PlaylistFragment";
+
 
 
     @Override

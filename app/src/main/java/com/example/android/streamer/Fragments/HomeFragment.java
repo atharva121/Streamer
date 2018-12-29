@@ -1,4 +1,4 @@
-package com.example.android.streamer;
+package com.example.android.streamer.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -6,11 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class CategoryFragment extends Fragment
+import com.example.android.streamer.Adapters.HomeRecyclerAdapter;
+import com.example.android.streamer.R;
+
+public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeSelector
 {
 
-    private static final String TAG = "CategoryFragment";
-
+    private static final String TAG = "HomeFragment";
 
 
     @Override
@@ -20,5 +22,8 @@ public class CategoryFragment extends Fragment
     }
 
 
+    @Override
+    public void onCategorySelected(int position) {
 
+    }
 }
