@@ -1,5 +1,6 @@
 package com.example.android.streamer.Fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -29,6 +30,11 @@ public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeS
     private RecyclerView mRecyclerView;
     private HomeRecyclerAdapter mAdapter;
     private ArrayList<String> mCategories = new ArrayList<>();
+    private IMainActivity mIMainActivity;
+
+    public static HomeFragment newInstance(){
+        return new HomeFragment();
+    }
 
 
     @Override
@@ -43,7 +49,8 @@ public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeS
     }
 
     private void retriveCategories(){
-        final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        mIMainActivity.showProgressBar();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         DocumentReference ref = firestore
                 .collection(getString(R.string.collection_audio))
                 .document(getString(R.string.document_categories));
@@ -56,8 +63,14 @@ public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeS
                     HashMap<String, String> categoriesMap = (HashMap)doc.getData().get("categories");
                     mCategories.addAll(categoriesMap.keySet());
                 }
+                updateDataSet();
             }
         });
+    }
+
+    private void updateDataSet(){
+        mIMainActivity.hideProgressBar();
+        mAdapter.notifyDataSetChanged();
     }
 
     private void initRecyclerView(View view) {
@@ -66,7 +79,14 @@ public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeS
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             mAdapter = new HomeRecyclerAdapter(mCategories, getActivity(), this);
             mRecyclerView.setAdapter(mAdapter);
+            retriveCategories();
         }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mIMainActivity = (IMainActivity) getActivity();
     }
 
     @Override
