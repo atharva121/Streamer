@@ -13,8 +13,14 @@ import android.view.ViewGroup;
 
 import com.example.android.streamer.Adapters.HomeRecyclerAdapter;
 import com.example.android.streamer.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeSelector
 {
@@ -34,6 +40,24 @@ public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeS
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initRecyclerView(view);
+    }
+
+    private void retriveCategories(){
+        final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        DocumentReference ref = firestore
+                .collection(getString(R.string.collection_audio))
+                .document(getString(R.string.document_categories));
+        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    DocumentSnapshot doc = task.getResult();
+                    Log.d(TAG, "onComplete: " + doc);
+                    HashMap<String, String> categoriesMap = (HashMap)doc.getData().get("categories");
+                    mCategories.addAll(categoriesMap.keySet());
+                }
+            }
+        });
     }
 
     private void initRecyclerView(View view) {
