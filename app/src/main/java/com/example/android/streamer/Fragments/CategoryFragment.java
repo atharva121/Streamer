@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,12 @@ import com.example.android.streamer.Adapters.CategoryRecyclerAdapter;
 import com.example.android.streamer.Adapters.HomeRecyclerAdapter;
 import com.example.android.streamer.Models.Artist;
 import com.example.android.streamer.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
@@ -55,12 +62,41 @@ public class CategoryFragment extends Fragment implements CategoryRecyclerAdapte
         initRecyclerView(view);
     }
 
+    private void retrieveArtists(){
+        mIMainActivity.showProgressBar();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        Query query = firestore
+                .collection(getString(R.string.collection_audio))
+                .document(getString(R.string.document_categories))
+                .collection(mSelectedCategory);
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    for (QueryDocumentSnapshot document : task.getResult()){
+                        mArtists.add(document.toObject(Artist.class));
+                    }
+                }
+                else {
+                    Log.d(TAG, "onComplete: error getting the documents: " + task.getException());
+                }
+                updateDataSet();
+            }
+        });
+    }
+
+    private void updateDataSet(){
+        mIMainActivity.hideProgressBar();
+        mAdapter.notifyDataSetChanged();
+    }
+
     private void initRecyclerView(View view) {
         if (mRecyclerView == null){
             mRecyclerView = view.findViewById(R.id.recycler_view);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             mAdapter = new CategoryRecyclerAdapter(getActivity(), mArtists, this);
             mRecyclerView.setAdapter(mAdapter);
+            retrieveArtists();
         }
     }
 
