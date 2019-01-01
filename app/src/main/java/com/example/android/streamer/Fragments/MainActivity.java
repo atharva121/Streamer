@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.example.android.streamer.Models.Artist;
 import com.example.android.streamer.R;
 import com.google.firestore.admin.v1beta1.Progress;
 
@@ -21,7 +22,8 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
         setContentView(R.layout.activity_main);
         mProgressBar = findViewById(R.id.progress_bar);
         /*testHomeFragment();*/
-        testCategoryFragment();
+        /*testCategoryFragment();*/
+        testPlaylistFragment();
 
     }
 
@@ -33,6 +35,14 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
     private void testCategoryFragment(){
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.main_container, CategoryFragment.newInstance("Music")).commit();
+    }
+
+    private void testPlaylistFragment(){
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_container, PlaylistFragment.newInstance("Music"
+                , new Artist("Pewdiepie",
+                                "https://cdn.shopify.com/s/files/1/2321/0267/products/hoodie-closeup_1024x1024@2x.JPG?v=1533305647",
+                                "UorEAx8Hi0KM7rCjkDic"))).commit();
     }
 
 
