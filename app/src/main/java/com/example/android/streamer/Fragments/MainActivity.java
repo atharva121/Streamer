@@ -1,5 +1,7 @@
 package com.example.android.streamer.Fragments;
 
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -21,30 +23,26 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mProgressBar = findViewById(R.id.progress_bar);
-        /*testHomeFragment();*/
-        /*testCategoryFragment();*/
-        testPlaylistFragment();
-
+        loadFragment(HomeFragment.newInstance(), true);
     }
 
-    private void testHomeFragment(){
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_container, HomeFragment.newInstance()).commit();
+    private void loadFragment(Fragment fragment, boolean lateralMovement){
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if (lateralMovement){
+            transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+        }
+        String tag = "";
+        if (fragment instanceof HomeFragment){
+            tag = getString(R.string.fragment_home);
+        }
+        else if (fragment instanceof CategoryFragment){
+            tag = getString(R.string.fragment_category);
+        }
+        else if (fragment instanceof PlaylistFragment){
+            tag = getString(R.string.fragment_playlist);
+        }
+        transaction.add(R.id.main_container, fragment, tag);
     }
-
-    private void testCategoryFragment(){
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_container, CategoryFragment.newInstance("Music")).commit();
-    }
-
-    private void testPlaylistFragment(){
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_container, PlaylistFragment.newInstance("Music"
-                , new Artist("Pewdiepie",
-                                "https://cdn.shopify.com/s/files/1/2321/0267/products/hoodie-closeup_1024x1024@2x.JPG?v=1533305647",
-                                "UorEAx8Hi0KM7rCjkDic"))).commit();
-    }
-
 
     @Override
     public void hideProgressBar() {
