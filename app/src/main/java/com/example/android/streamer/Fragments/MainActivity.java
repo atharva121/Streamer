@@ -20,13 +20,19 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mProgressBar = findViewById(R.id.progress_bar);
-        testHomeFragment();
+        /*testHomeFragment();*/
+        testCategoryFragment();
 
     }
 
     private void testHomeFragment(){
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.main_container, HomeFragment.newInstance()).commit();
+    }
+
+    private void testCategoryFragment(){
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_container, CategoryFragment.newInstance("Music")).commit();
     }
 
 
