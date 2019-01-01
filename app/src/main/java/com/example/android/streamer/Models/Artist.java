@@ -1,6 +1,9 @@
 package com.example.android.streamer.Models;
 
-public class Artist {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Artist implements Parcelable {
     private String title;
     private String image;
     private String artist_id;
@@ -13,6 +16,24 @@ public class Artist {
 
     public Artist() {
     }
+
+    protected Artist(Parcel in) {
+        title = in.readString();
+        image = in.readString();
+        artist_id = in.readString();
+    }
+
+    public static final Creator<Artist> CREATOR = new Creator<Artist>() {
+        @Override
+        public Artist createFromParcel(Parcel in) {
+            return new Artist(in);
+        }
+
+        @Override
+        public Artist[] newArray(int size) {
+            return new Artist[size];
+        }
+    };
 
     public String getTitle() {
         return title;
@@ -36,5 +57,17 @@ public class Artist {
 
     public void setArtist_id(String artist_id) {
         this.artist_id = artist_id;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(title);
+        dest.writeString(image);
+        dest.writeString(artist_id);
     }
 }
