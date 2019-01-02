@@ -41,9 +41,11 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
         }
         else if (fragment instanceof CategoryFragment){
             tag = getString(R.string.fragment_category);
+            transaction.addToBackStack(tag);
         }
         else if (fragment instanceof PlaylistFragment){
             tag = getString(R.string.fragment_playlist);
+            transaction.addToBackStack(tag);
         }
         transaction.add(R.id.main_container, fragment, tag);
         transaction.commit();
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
 
     @Override
     public void onBackPressed() {
-        ArrayList<Fragment> fragments = MainActivityFragmentManager.getInstance().getFragments();
+        ArrayList<Fragment> fragments = new ArrayList<>(MainActivityFragmentManager.getInstance().getFragments());
         if (fragments.size() > 1){
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.remove(fragments.get(fragments.size() - 1));
@@ -90,5 +92,15 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
     @Override
     public void showProgressBar() {
         mProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onCategorySelected(String category) {
+        loadFragment(CategoryFragment.newInstance(category), true);
+    }
+
+    @Override
+    public void onArtistSelected(String category, Artist artist) {
+        loadFragment(PlaylistFragment.newInstance(category, artist), true);
     }
 }

@@ -102,7 +102,7 @@ public class CategoryFragment extends Fragment implements CategoryRecyclerAdapte
 
     @Override
     public void onArtistSelected(int position) {
-
+        mIMainActivity.onArtistSelected(mSelectedCategory, mArtists.get(position));
     }
 
     @Override
