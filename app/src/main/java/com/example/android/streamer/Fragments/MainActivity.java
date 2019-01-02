@@ -1,6 +1,7 @@
 package com.example.android.streamer.Fragments;
 
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -45,6 +46,25 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
         transaction.add(R.id.main_container, fragment, tag);
         transaction.commit();
         MainActivityFragmentManager.getInstance().addFragment(fragment);
+        showFragment(fragment, false);
+    }
+
+    private void showFragment(Fragment fragment, boolean backwardsMovement){
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if (backwardsMovement){
+            transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+        }
+        transaction.show(fragment);
+        transaction.commit();
+        for (Fragment f : MainActivityFragmentManager.getInstance().getFragments()){
+            if (f != null){
+                if (!f.getTag().equals(fragment.getTag())){
+                    FragmentTransaction t = getSupportFragmentManager().beginTransaction();
+                    t.hide(f);
+                    t.commit();
+                }
+            }
+        }
     }
 
     @Override

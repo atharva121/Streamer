@@ -18,15 +18,15 @@ public class MainActivityFragmentManager {
         mFragments.add(fragment);
     }
 
-    private void removeFragment(Fragment fragment){
+    public void removeFragment(Fragment fragment){
         mFragments.remove(fragment);
     }
 
-    private void removeFragment(int postion){
+    public void removeFragment(int postion){
         mFragments.remove(postion);
     }
 
-    private ArrayList<Fragment> getFragments(){
+    public ArrayList<Fragment> getFragments(){
         return mFragments;
     }
 
