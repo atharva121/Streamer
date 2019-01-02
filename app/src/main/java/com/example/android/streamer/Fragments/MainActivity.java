@@ -9,6 +9,7 @@ import android.widget.ProgressBar;
 
 import com.example.android.streamer.Models.Artist;
 import com.example.android.streamer.R;
+import com.example.android.streamer.Util.MainActivityFragmentManager;
 import com.google.firestore.admin.v1beta1.Progress;
 
 public class MainActivity extends AppCompatActivity implements IMainActivity
@@ -42,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
             tag = getString(R.string.fragment_playlist);
         }
         transaction.add(R.id.main_container, fragment, tag);
+        transaction.commit();
+        MainActivityFragmentManager.getInstance().addFragment(fragment);
     }
 
     @Override
