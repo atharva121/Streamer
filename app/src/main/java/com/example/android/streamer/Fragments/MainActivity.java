@@ -27,7 +27,15 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mProgressBar = findViewById(R.id.progress_bar);
-        loadFragment(HomeFragment.newInstance(), true);
+        if (savedInstanceState == null) {
+            loadFragment(HomeFragment.newInstance(), true);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("active_fragments", MainActivityFragmentManager.getInstance().getFragments().size());
     }
 
     private void loadFragment(Fragment fragment, boolean lateralMovement){
