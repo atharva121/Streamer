@@ -36,6 +36,12 @@ public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeS
         return new HomeFragment();
     }
 
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        if (!hidden){
+            mIMainActivity.setActinBarTitle(getString(R.string.categories));
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,6 +52,7 @@ public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeS
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initRecyclerView(view);
+        mIMainActivity.setActinBarTitle(getString(R.string.categories));
     }
 
     private void retriveCategories(){

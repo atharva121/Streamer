@@ -103,4 +103,9 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
     public void onArtistSelected(String category, Artist artist) {
         loadFragment(PlaylistFragment.newInstance(category, artist), true);
     }
+
+    @Override
+    public void setActinBarTitle(String title) {
+        getSupportActionBar().setTitle(title);
+    }
 }

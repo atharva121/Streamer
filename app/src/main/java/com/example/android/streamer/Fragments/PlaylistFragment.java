@@ -50,6 +50,13 @@ public class PlaylistFragment extends Fragment implements
     }
 
     @Override
+    public void onHiddenChanged(boolean hidden) {
+        if (!hidden){
+            mIMainActivity.setActinBarTitle(mSelectedArtist.getTitle());
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home, container, false);
@@ -67,6 +74,7 @@ public class PlaylistFragment extends Fragment implements
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initRecyclerView(view);
+        mIMainActivity.setActinBarTitle(mSelectedArtist.getTitle());
     }
 
     private void retrieveMedia(){

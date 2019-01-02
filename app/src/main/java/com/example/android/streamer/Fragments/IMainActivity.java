@@ -7,4 +7,5 @@ public interface IMainActivity {
     void showProgressBar();
     void onCategorySelected(String category);
     void onArtistSelected(String category, Artist artist);
+    void setActinBarTitle(String title);
 }
