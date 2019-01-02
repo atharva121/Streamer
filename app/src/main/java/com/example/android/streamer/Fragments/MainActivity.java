@@ -13,6 +13,8 @@ import com.example.android.streamer.R;
 import com.example.android.streamer.Util.MainActivityFragmentManager;
 import com.google.firestore.admin.v1beta1.Progress;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements IMainActivity
 {
 
@@ -65,6 +67,19 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
                 }
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        ArrayList<Fragment> fragments = MainActivityFragmentManager.getInstance().getFragments();
+        if (fragments.size() > 1){
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.remove(fragments.get(fragments.size() - 1));
+            transaction.commit();
+            MainActivityFragmentManager.getInstance().removeFragment(fragments.size()  - 1);
+            showFragment(fragments.get(fragments.size() - 2), true);
+        }
+        super.onBackPressed();
     }
 
     @Override
