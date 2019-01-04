@@ -1,6 +1,8 @@
 package com.example.android.streamer.Players;
 
 import android.content.Context;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
 
@@ -9,6 +11,8 @@ import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -18,6 +22,8 @@ import com.google.android.exoplayer2.util.Util;
 public class MediaPlayerAdapter extends PlayerAdapter {
 
     private Context mContext;
+    private MediaMetadataCompat mCurrentMedia;
+    private boolean mCurrentMediaPlayedToCompletion;
     private SimpleExoPlayer mExoPlayer;
     private TrackSelector mTrackSelector;
     private DefaultRenderersFactory mRenderer;
@@ -55,7 +61,8 @@ public class MediaPlayerAdapter extends PlayerAdapter {
 
     @Override
     public void playFromMedia(MediaMetadataCompat metadata) {
-
+        startTrackingPlayback();
+        playFile(metadata);
     }
 
     @Override
@@ -80,6 +87,40 @@ public class MediaPlayerAdapter extends PlayerAdapter {
 
     @Override
     public void setVolume(float volume) {
+
+    }
+
+
+    private void playFile(MediaMetadataCompat metadata) {
+        String mediaId = metadata.getDescription().getMediaId();
+        boolean mediaChanged = (mCurrentMedia == null) || !mediaId.equals(mCurrentMedia.getDescription().getMediaId());
+        if (mCurrentMediaPlayedToCompletion){
+            mediaChanged = true;
+            mCurrentMediaPlayedToCompletion = false;
+        }
+        if (!mediaChanged){
+            if (!isPlaying()){
+                play();
+            }
+            return;
+        }
+        else {
+            release();
+        }
+        mCurrentMedia = metadata;
+        initializeExoPlayer();
+        try {
+            MediaSource audioSource =
+                    new ExtractorMediaSource.Factory(mDataSourceFactory)
+                            .createMediaSource(Uri.parse(mCurrentMedia.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)));
+        }catch (Exception e){
+            throw new RuntimeException("Failed to play media url: "
+            + mCurrentMedia.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI), e);
+        }
+        play();
+    }
+
+    private void startTrackingPlayback() {
 
     }
 }
