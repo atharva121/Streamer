@@ -27,8 +27,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 
 public class PlaylistFragment extends Fragment implements
-        PlaylistRecyclerAdapter.IMediaSelector
-{
+        PlaylistRecyclerAdapter.IMediaSelector {
 
     private static final String TAG = "PlaylistFragment";
     private RecyclerView mRecyclerView;
@@ -39,7 +38,7 @@ public class PlaylistFragment extends Fragment implements
     private Artist mSelectedArtist;
     private MediaMetadataCompat mSelectedMedia;
 
-    public static PlaylistFragment newInstance(String category, Artist artist){
+    public static PlaylistFragment newInstance(String category, Artist artist) {
         PlaylistFragment playlistFragment = new PlaylistFragment();
         Bundle args = new Bundle();
         args.putString("category", category);
@@ -50,7 +49,7 @@ public class PlaylistFragment extends Fragment implements
 
     @Override
     public void onHiddenChanged(boolean hidden) {
-        if (!hidden){
+        if (!hidden) {
             mIMainActivity.setActinBarTitle(mSelectedArtist.getTitle());
         }
     }
@@ -64,7 +63,7 @@ public class PlaylistFragment extends Fragment implements
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null){
+        if (getArguments() != null) {
             mSelectedCategory = getArguments().getString("category");
             mSelectedArtist = getArguments().getParcelable("artist");
         }
@@ -77,7 +76,7 @@ public class PlaylistFragment extends Fragment implements
         mIMainActivity.setActinBarTitle(mSelectedArtist.getTitle());
     }
 
-    private void retrieveMedia(){
+    private void retrieveMedia() {
         mIMainActivity.showProgressBar();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         Query query = firestore
@@ -90,12 +89,11 @@ public class PlaylistFragment extends Fragment implements
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    for (QueryDocumentSnapshot document : task.getResult()){
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
                         addToMediaList(document);
                     }
-                }
-                else {
+                } else {
                     Log.d(TAG, "onComplete: error getting the documents: " + task.getException());
                 }
                 updateDataSet();
@@ -116,7 +114,7 @@ public class PlaylistFragment extends Fragment implements
         mMediaList.add(media);
     }
 
-    private void updateDataSet(){
+    private void updateDataSet() {
         mIMainActivity.hideProgressBar();
         mAdapter.notifyDataSetChanged();
     }
