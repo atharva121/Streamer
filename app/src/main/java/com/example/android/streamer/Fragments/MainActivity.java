@@ -8,8 +8,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.example.android.streamer.Client.MediaBrowserHelper;
 import com.example.android.streamer.Models.Artist;
 import com.example.android.streamer.R;
+import com.example.android.streamer.Services.MediaService;
 import com.example.android.streamer.Util.MainActivityFragmentManager;
 import com.google.firestore.admin.v1beta1.Progress;
 
@@ -20,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
 
     private static final String TAG = "MainActivity";
     private ProgressBar mProgressBar;
+    private MediaBrowserHelper mMediaBrowserHelper;
 
 
     @Override
@@ -27,9 +30,22 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mProgressBar = findViewById(R.id.progress_bar);
+        mMediaBrowserHelper = new MediaBrowserHelper(this, MediaService.class);
         if (savedInstanceState == null) {
             loadFragment(HomeFragment.newInstance(), true);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mMediaBrowserHelper.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mMediaBrowserHelper.onStop();
     }
 
     @Override
