@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.android.streamer.Adapters.CategoryRecyclerAdapter;
 import com.example.android.streamer.Adapters.PlaylistRecyclerAdapter;
 import com.example.android.streamer.Models.Artist;
 import com.example.android.streamer.R;
@@ -50,7 +49,7 @@ public class PlaylistFragment extends Fragment implements
     @Override
     public void onHiddenChanged(boolean hidden) {
         if (!hidden) {
-            mIMainActivity.setActinBarTitle(mSelectedArtist.getTitle());
+            mIMainActivity.setActionBarTitle(mSelectedArtist.getTitle());
         }
     }
 
@@ -73,7 +72,7 @@ public class PlaylistFragment extends Fragment implements
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initRecyclerView(view);
-        mIMainActivity.setActinBarTitle(mSelectedArtist.getTitle());
+        mIMainActivity.setActionBarTitle(mSelectedArtist.getTitle());
     }
 
     private void retrieveMedia() {
@@ -140,5 +139,6 @@ public class PlaylistFragment extends Fragment implements
         mIMainActivity.getMyApplication().setMediaItems(mMediaList);
         mSelectedMedia = mMediaList.get(position);
         mAdapter.setSelectedIndex(position);
+        mIMainActivity.onMediaSelected(mSelectedMedia);
     }
 }

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-public class MyApplication extends Application {
+public class  MyApplication extends Application {
     private static final String TAG = "MyApplication";
     private static MyApplication mInstance;
     private List<MediaBrowserCompat.MediaItem> mMediaItems = new ArrayList<>();

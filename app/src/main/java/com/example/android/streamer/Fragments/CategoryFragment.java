@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.android.streamer.Adapters.CategoryRecyclerAdapter;
-import com.example.android.streamer.Adapters.HomeRecyclerAdapter;
 import com.example.android.streamer.Models.Artist;
 import com.example.android.streamer.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -46,7 +45,7 @@ public class CategoryFragment extends Fragment implements CategoryRecyclerAdapte
     @Override
     public void onHiddenChanged(boolean hidden) {
         if (!hidden){
-            mIMainActivity.setActinBarTitle(mSelectedCategory);
+            mIMainActivity.setActionBarTitle(mSelectedCategory);
         }
     }
 
@@ -68,7 +67,7 @@ public class CategoryFragment extends Fragment implements CategoryRecyclerAdapte
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initRecyclerView(view);
-        mIMainActivity.setActinBarTitle(mSelectedCategory);
+        mIMainActivity.setActionBarTitle(mSelectedCategory);
     }
 
     private void retrieveArtists(){
