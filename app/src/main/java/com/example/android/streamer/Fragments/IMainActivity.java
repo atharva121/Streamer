@@ -8,4 +8,5 @@ public interface IMainActivity {
     void onCategorySelected(String category);
     void onArtistSelected(String category, Artist artist);
     void setActinBarTitle(String title);
+    void playPause();
 }

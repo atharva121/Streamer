@@ -14,6 +14,7 @@ import android.util.Log;
 
 import com.example.android.streamer.Players.MediaPlayerAdapter;
 import com.example.android.streamer.Players.PlayerAdapter;
+import com.example.android.streamer.Util.MediaLibrary;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 
 import java.util.ArrayList;
@@ -23,13 +24,17 @@ public class MediaService extends MediaBrowserServiceCompat {
     private static final String TAG = "MediaService";
     private MediaSessionCompat mSession;
     private PlayerAdapter mPlayback;
+    private MediaLibrary mMediaLibrary;
 
-    public MediaService() {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mMediaLibrary = new MediaLibrary();
         mSession = new MediaSessionCompat(this, TAG);
         mSession.setFlags(
                 MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
-                MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS
-                );
+                        MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS
+        );
         mSession.setCallback(new MediaSessionCallback());
         setSessionToken(mSession.getSessionToken());
         mPlayback = new MediaPlayerAdapter(this);
@@ -37,14 +42,12 @@ public class MediaService extends MediaBrowserServiceCompat {
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
         mPlayback.stop();
         stopSelf();
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         mSession.release();
     }
 
@@ -52,7 +55,7 @@ public class MediaService extends MediaBrowserServiceCompat {
     @Override
     public BrowserRoot onGetRoot(@NonNull String s, int i, @Nullable Bundle bundle) {
         if (s.equals(getApplicationContext().getPackageName())){
-
+            return new BrowserRoot("some_fake_media", null);
         }
         return new BrowserRoot("empty_media", null);
     }
@@ -63,7 +66,7 @@ public class MediaService extends MediaBrowserServiceCompat {
             result.sendResult(null);
             return;
         }
-        result.sendResult(null);
+        result.sendResult(MediaLibrary.getMediaItems());
     }
 
     public class MediaSessionCallback extends MediaSessionCompat.Callback{
@@ -77,7 +80,9 @@ public class MediaService extends MediaBrowserServiceCompat {
             if (mQueueIndex < 0 && mPlaylist.isEmpty()){
                 return;
             }
-            mPreparedMedia = null; /*TODO: Need to retrieve the selected media here*/
+            String mediaId = mPlaylist.get(mQueueIndex).getDescription().getMediaId();
+            mPreparedMedia = mMediaLibrary.getTreeMap().get(mediaId);
+            mSession.setMetadata(mPreparedMedia);
             if (!mSession.isActive()){
                 mSession.setActive(true);
             }

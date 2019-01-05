@@ -35,6 +35,17 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
             loadFragment(HomeFragment.newInstance(), true);
         }
     }
+    private boolean mIsPlaying;
+    @Override
+    public void playPause() {
+        if (mIsPlaying){
+            mMediaBrowserHelper.getTransportControls().skipToNext();
+        }
+        else {
+            mMediaBrowserHelper.getTransportControls().play();
+            mIsPlaying = true;
+        }
+    }
 
     @Override
     protected void onStart() {
@@ -132,4 +143,5 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
     public void setActinBarTitle(String title) {
         getSupportActionBar().setTitle(title);
     }
+
 }

@@ -46,7 +46,9 @@ public class MediaControllerFragment extends Fragment implements
 
     @Override
     public void onClick(View v) {
-
+        if (v.getId() == R.id.play_pause){
+            mIMainActivity.playPause();
+        }
     }
 
     public  void setIsPlaying(boolean isPlaying){

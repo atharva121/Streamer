@@ -2,13 +2,11 @@ package com.example.android.streamer.Players;
 
 import android.content.Context;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
-
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -40,9 +38,11 @@ public class MediaPlayerAdapter extends PlayerAdapter {
     private TrackSelector mTrackSelector;
     private DefaultRenderersFactory mRenderer;
     private DataSource.Factory mDataSourceFactory;
+    private ExoPlayerEventListener mExoPlayerEventListener;
 
     public MediaPlayerAdapter(@NonNull Context context) {
         super(context);
+        mContext = context.getApplicationContext();
     }
 
     private void initializeExoPlayer(){
@@ -51,6 +51,10 @@ public class MediaPlayerAdapter extends PlayerAdapter {
             mRenderer = new DefaultRenderersFactory(mContext);
             mDataSourceFactory = new DefaultDataSourceFactory(mContext, Util.getUserAgent(mContext, "Streamer"));
             mExoPlayer = ExoPlayerFactory.newSimpleInstance(mRenderer, mTrackSelector, new DefaultLoadControl());
+            if(mExoPlayerEventListener == null){
+                mExoPlayerEventListener = new ExoPlayerEventListener();
+            }
+            mExoPlayer.addListener(mExoPlayerEventListener);
         }
     }
 
@@ -140,6 +144,7 @@ public class MediaPlayerAdapter extends PlayerAdapter {
             MediaSource audioSource =
                     new ExtractorMediaSource.Factory(mDataSourceFactory)
                             .createMediaSource(Uri.parse(mCurrentMedia.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)));
+            mExoPlayer.prepare(audioSource);
         }catch (Exception e){
             throw new RuntimeException("Failed to play media url: "
             + mCurrentMedia.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI), e);
