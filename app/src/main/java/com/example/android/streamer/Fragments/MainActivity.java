@@ -18,8 +18,7 @@ import com.google.firestore.admin.v1beta1.Progress;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements IMainActivity
-{
+public class MainActivity extends AppCompatActivity implements IMainActivity {
 
     private static final String TAG = "MainActivity";
     private ProgressBar mProgressBar;
@@ -38,13 +37,14 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
             loadFragment(HomeFragment.newInstance(), true);
         }
     }
+
     private boolean mIsPlaying;
+
     @Override
     public void playPause() {
-        if (mIsPlaying){
+        if (mIsPlaying) {
             mMediaBrowserHelper.getTransportControls().skipToNext();
-        }
-        else {
+        } else {
             mMediaBrowserHelper.getTransportControls().play();
             mIsPlaying = true;
         }
@@ -73,20 +73,18 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
         outState.putInt("active_fragments", MainActivityFragmentManager.getInstance().getFragments().size());
     }
 
-    private void loadFragment(Fragment fragment, boolean lateralMovement){
+    private void loadFragment(Fragment fragment, boolean lateralMovement) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        if (lateralMovement){
+        if (lateralMovement) {
             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
         }
         String tag = "";
-        if (fragment instanceof HomeFragment){
+        if (fragment instanceof HomeFragment) {
             tag = getString(R.string.fragment_home);
-        }
-        else if (fragment instanceof CategoryFragment){
+        } else if (fragment instanceof CategoryFragment) {
             tag = getString(R.string.fragment_category);
             transaction.addToBackStack(tag);
-        }
-        else if (fragment instanceof PlaylistFragment){
+        } else if (fragment instanceof PlaylistFragment) {
             tag = getString(R.string.fragment_playlist);
             transaction.addToBackStack(tag);
         }
@@ -96,16 +94,16 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
         showFragment(fragment, false);
     }
 
-    private void showFragment(Fragment fragment, boolean backwardsMovement){
+    private void showFragment(Fragment fragment, boolean backwardsMovement) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        if (backwardsMovement){
+        if (backwardsMovement) {
             transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
         }
         transaction.show(fragment);
         transaction.commit();
-        for (Fragment f : MainActivityFragmentManager.getInstance().getFragments()){
-            if (f != null){
-                if (!f.getTag().equals(fragment.getTag())){
+        for (Fragment f : MainActivityFragmentManager.getInstance().getFragments()) {
+            if (f != null) {
+                if (!f.getTag().equals(fragment.getTag())) {
                     FragmentTransaction t = getSupportFragmentManager().beginTransaction();
                     t.hide(f);
                     t.commit();
@@ -117,11 +115,11 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
     @Override
     public void onBackPressed() {
         ArrayList<Fragment> fragments = new ArrayList<>(MainActivityFragmentManager.getInstance().getFragments());
-        if (fragments.size() > 1){
+        if (fragments.size() > 1) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.remove(fragments.get(fragments.size() - 1));
             transaction.commit();
-            MainActivityFragmentManager.getInstance().removeFragment(fragments.size()  - 1);
+            MainActivityFragmentManager.getInstance().removeFragment(fragments.size() - 1);
             showFragment(fragments.get(fragments.size() - 2), true);
         }
         super.onBackPressed();
