@@ -10,6 +10,7 @@ import android.widget.ProgressBar;
 
 import com.example.android.streamer.Client.MediaBrowserHelper;
 import com.example.android.streamer.Models.Artist;
+import com.example.android.streamer.MyApplication;
 import com.example.android.streamer.R;
 import com.example.android.streamer.Services.MediaService;
 import com.example.android.streamer.Util.MainActivityFragmentManager;
@@ -23,6 +24,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
     private static final String TAG = "MainActivity";
     private ProgressBar mProgressBar;
     private MediaBrowserHelper mMediaBrowserHelper;
+    private MyApplication mMyApplication;
 
 
     @Override
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
         setContentView(R.layout.activity_main);
         mProgressBar = findViewById(R.id.progress_bar);
         mMediaBrowserHelper = new MediaBrowserHelper(this, MediaService.class);
+        mMyApplication = MyApplication.getInstance();
         if (savedInstanceState == null) {
             loadFragment(HomeFragment.newInstance(), true);
         }
@@ -45,6 +48,11 @@ public class MainActivity extends AppCompatActivity implements IMainActivity
             mMediaBrowserHelper.getTransportControls().play();
             mIsPlaying = true;
         }
+    }
+
+    @Override
+    public MyApplication getMyApplication() {
+        return mMyApplication;
     }
 
     @Override

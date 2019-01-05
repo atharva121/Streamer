@@ -1,7 +1,6 @@
 package com.example.android.streamer.Fragments;
 
 import android.content.Context;
-import android.media.MediaMetadata;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -38,7 +37,7 @@ public class PlaylistFragment extends Fragment implements
     private IMainActivity mIMainActivity;
     private String mSelectedCategory;
     private Artist mSelectedArtist;
-    private MediaMetadata mSelectedMedia;
+    private MediaMetadataCompat mSelectedMedia;
 
     public static PlaylistFragment newInstance(String category, Artist artist){
         PlaylistFragment playlistFragment = new PlaylistFragment();
@@ -140,6 +139,8 @@ public class PlaylistFragment extends Fragment implements
 
     @Override
     public void onMediaSelected(int position) {
-
+        mIMainActivity.getMyApplication().setMediaItems(mMediaList);
+        mSelectedMedia = mMediaList.get(position);
+        mAdapter.setSelectedIndex(position);
     }
 }
