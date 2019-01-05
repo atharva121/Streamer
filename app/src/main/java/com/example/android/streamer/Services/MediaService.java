@@ -7,16 +7,22 @@ import android.support.annotation.Nullable;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
+import android.util.Log;
 
+import com.example.android.streamer.Players.MediaPlayerAdapter;
+import com.example.android.streamer.Players.PlayerAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MediaService extends MediaBrowserServiceCompat {
     private static final String TAG = "MediaService";
     private MediaSessionCompat mSession;
+    private PlayerAdapter mPlayback;
 
     public MediaService() {
         mSession = new MediaSessionCompat(this, TAG);
@@ -26,11 +32,13 @@ public class MediaService extends MediaBrowserServiceCompat {
                 );
         mSession.setCallback(new MediaSessionCallback());
         setSessionToken(mSession.getSessionToken());
+        mPlayback = new MediaPlayerAdapter(this);
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
+        mPlayback.stop();
         stopSelf();
     }
 
@@ -59,54 +67,89 @@ public class MediaService extends MediaBrowserServiceCompat {
     }
 
     public class MediaSessionCallback extends MediaSessionCompat.Callback{
+
+        private final List<MediaSessionCompat.QueueItem> mPlaylist = new ArrayList<>();
+        private int mQueueIndex = -1;
+        private MediaMetadataCompat mPreparedMedia;
+
         @Override
         public void onPrepare() {
-            super.onPrepare();
+            if (mQueueIndex < 0 && mPlaylist.isEmpty()){
+                return;
+            }
+            mPreparedMedia = null; /*TODO: Need to retrieve the selected media here*/
+            if (!mSession.isActive()){
+                mSession.setActive(true);
+            }
         }
 
         @Override
         public void onPlay() {
-            super.onPlay();
+            if (!isReadyToPlay()){
+                return;
+            }
+            if (mPreparedMedia == null){
+                onPrepare();
+            }
+            mPlayback.playFromMedia(mPreparedMedia);
         }
 
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
-            super.onPlayFromMediaId(mediaId, extras);
+            Log.d(TAG, "onPlayFromMediaId: Called.");
         }
 
         @Override
         public void onPause() {
-            super.onPause();
+            mPlayback.pause();
         }
 
         @Override
         public void onSkipToNext() {
-            super.onSkipToNext();
+            Log.d(TAG, "onSkipToNext: SKIP TO NEXT");
+            mQueueIndex = (++mQueueIndex % mPlaylist.size());
+            Log.d(TAG, "onSkipToNext: queue index: " + mQueueIndex);
+            mPreparedMedia = null;
+            onPlay();
         }
 
         @Override
         public void onSkipToPrevious() {
-            super.onSkipToPrevious();
+            Log.d(TAG, "onSkipToPrevious: SKIPPING TO PREVIOUS");
+            mQueueIndex = mQueueIndex > 0 ? mQueueIndex - 1 : mPlaylist.size() - 1;
+            mPreparedMedia = null;
+            onPlay();
         }
 
         @Override
         public void onStop() {
-            super.onStop();
+            mPlayback.stop();
+            mSession.setActive(false);
         }
 
         @Override
         public void onSeekTo(long pos) {
-            super.onSeekTo(pos);
+            mPlayback.seekTo(pos);
         }
 
         @Override
         public void onAddQueueItem(MediaDescriptionCompat description) {
-            super.onAddQueueItem(description);
+            Log.d(TAG, "onAddQueueItem: called: position in list: " + mPlaylist.size());
+            mPlaylist.add(new MediaSessionCompat.QueueItem(description, description.hashCode()));
+            mQueueIndex = (mQueueIndex == -1) ? 0 : mQueueIndex;
+            mSession.setQueue(mPlaylist);
         }
 
         @Override
         public void onRemoveQueueItem(MediaDescriptionCompat description) {
-            super.onRemoveQueueItem(description);
+            Log.d(TAG, "onRemoveQueueItem: called: position in list: " + mPlaylist.size());
+            mPlaylist.remove(new MediaSessionCompat.QueueItem(description, description.hashCode()));
+            mQueueIndex = (mPlaylist.isEmpty()) ? -1 : mQueueIndex;
+            mSession.setQueue(mPlaylist);
+        }
+
+        private boolean isReadyToPlay(){
+            return(!mPlaylist.isEmpty());
         }
     }
 }
