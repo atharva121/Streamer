@@ -9,11 +9,13 @@ import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.android.streamer.MyApplication;
 import com.example.android.streamer.Players.MediaPlayerAdapter;
+import com.example.android.streamer.Players.PlaybackInfoListener;
 import com.example.android.streamer.Players.PlayerAdapter;
 import com.example.android.streamer.Util.MediaLibrary;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -41,7 +43,7 @@ public class MediaService extends MediaBrowserServiceCompat {
         );
         mSession.setCallback(new MediaSessionCallback());
         setSessionToken(mSession.getSessionToken());
-        mPlayback = new MediaPlayerAdapter(this);
+        mPlayback = new MediaPlayerAdapter(this, new MediaPlayerListener());
     }
 
     @Override
@@ -180,6 +182,13 @@ public class MediaService extends MediaBrowserServiceCompat {
 
         private boolean isReadyToPlay(){
             return(!mPlaylist.isEmpty());
+        }
+    }
+
+    private class MediaPlayerListener implements PlaybackInfoListener{
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            mSession.setPlaybackState(state);
         }
     }
 }

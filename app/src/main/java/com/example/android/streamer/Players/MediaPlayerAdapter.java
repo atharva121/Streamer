@@ -2,6 +2,7 @@ package com.example.android.streamer.Players;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaMetadataCompat;
@@ -39,9 +40,11 @@ public class MediaPlayerAdapter extends PlayerAdapter {
     private DefaultRenderersFactory mRenderer;
     private DataSource.Factory mDataSourceFactory;
     private ExoPlayerEventListener mExoPlayerEventListener;
+    private PlaybackInfoListener mPlaybackInfoListener;
 
-    public MediaPlayerAdapter(@NonNull Context context) {
+    public MediaPlayerAdapter(@NonNull Context context, PlaybackInfoListener playbackInfoListener) {
         super(context);
+        mPlaybackInfoListener = playbackInfoListener;
         mContext = context.getApplicationContext();
     }
 
@@ -162,6 +165,18 @@ public class MediaPlayerAdapter extends PlayerAdapter {
             mCurrentMediaPlayedToCompletion = true;
         }
         final long reportPosition = mExoPlayer == null ? 0 : mExoPlayer.getCurrentPosition();
+    }
+
+    private void publishStateBuilder(long reportPosition){
+        final PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder();
+        stateBuilder.setActions(getAvailableActions());
+        stateBuilder.setState(
+                mState,
+                reportPosition,
+                1.0f,
+                SystemClock.elapsedRealtime()
+        );
+        mPlaybackInfoListener.onPlaybackStateChanged(stateBuilder.build());
     }
 
     private class ExoPlayerEventListener implements Player.EventListener{

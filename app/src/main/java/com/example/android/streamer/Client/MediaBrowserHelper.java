@@ -6,7 +6,9 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserServiceCompat;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import java.util.List;
@@ -19,12 +21,30 @@ public class MediaBrowserHelper {
     private MediaControllerCompat mMediaController;
     private MediaBrowserConnectionCallback mMediaBrowserConnectionCallback;
     private MediaBrowserSubscriptionCallback mMediaBrowserSubscriptionCallback;
+    private MediaControllerCallback mMediaControllerCallback;
+    private MediaBrowserHelperCallback mMediaBrowserCallback;
 
     public MediaBrowserHelper(Context context, Class<? extends MediaBrowserServiceCompat> mediaBrowserServiceClass) {
         this.mContext = context;
         this.mMediaBrowserServiceClass = mediaBrowserServiceClass;
         mMediaBrowserConnectionCallback = new MediaBrowserConnectionCallback();
         mMediaBrowserSubscriptionCallback = new MediaBrowserSubscriptionCallback();
+    }
+
+    public void setMediaBrowserHelperCallback(MediaBrowserHelperCallback browserHelperCallback){
+        mMediaBrowserCallback = browserHelperCallback;
+    }
+
+    public void onStop(){
+        if (mMediaController != null){
+            mMediaController.unregisterCallback(mMediaControllerCallback);
+            mMediaController = null;
+        }
+        if (mMediaBrowser != null && mMediaBrowser.isConnected()){
+            mMediaBrowser.disconnect();
+            mMediaBrowser = null;
+        }
+        Log.d(TAG, "onStop: disconnecting from the service");
     }
 
     public void subscribeToNewPlaylist(String playlistId){
@@ -43,15 +63,22 @@ public class MediaBrowserHelper {
         }
     }
 
-    public void onStop(){
-        if (mMediaController != null){
-            mMediaController = null;
+    private class MediaControllerCallback extends MediaControllerCompat.Callback{
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            Log.d(TAG, "onPlaybackStateChanged: called.");
+            if (mMediaBrowserCallback != null){
+                mMediaBrowserCallback.onPlaybackStateChanged(state);
+            }
         }
-        if (mMediaBrowser != null && mMediaBrowser.isConnected()){
-            mMediaBrowser.disconnect();
-            mMediaBrowser = null;
+
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            Log.d(TAG, "onMetadataChanged: called.");
+            if (mMediaBrowserCallback != null){
+                mMediaBrowserCallback.onMetadataChanged(metadata);
+            }
         }
-        Log.d(TAG, "onStop: disconnecting from the service");
     }
 
     private class MediaBrowserConnectionCallback extends MediaBrowserCompat.ConnectionCallback{
@@ -60,6 +87,7 @@ public class MediaBrowserHelper {
             Log.d(TAG, "onConnected: called.");
             try {
                 mMediaController = new MediaControllerCompat(mContext, mMediaBrowser.getSessionToken());
+                mMediaController.registerCallback(mMediaControllerCallback);
             }catch (RemoteException e){
                 Log.d(TAG, "onConnected: ocnnection problem: " + e.toString());
             }

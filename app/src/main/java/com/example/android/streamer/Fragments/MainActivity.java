@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.android.streamer.Client.MediaBrowserHelper;
+import com.example.android.streamer.Client.MediaBrowserHelperCallback;
 import com.example.android.streamer.Models.Artist;
 import com.example.android.streamer.MyApplication;
 import com.example.android.streamer.R;
@@ -25,13 +27,17 @@ import java.util.ArrayList;
 import static com.example.android.streamer.Util.Constants.MEDIA_QUEUE_POSITION;
 import static com.example.android.streamer.Util.Constants.QUEUE_NEW_PLAYLIST;
 
-public class MainActivity extends AppCompatActivity implements IMainActivity {
+public class MainActivity extends AppCompatActivity implements
+        IMainActivity,
+        MediaBrowserHelperCallback
+{
 
     private static final String TAG = "MainActivity";
     private ProgressBar mProgressBar;
     private MediaBrowserHelper mMediaBrowserHelper;
     private MyApplication mMyApplication;
     private MyPreferenceManager mMyPrefManager;
+    private boolean mIsPlaying;
 
 
     @Override
@@ -41,13 +47,12 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         mProgressBar = findViewById(R.id.progress_bar);
         mMyPrefManager = new MyPreferenceManager(this);
         mMediaBrowserHelper = new MediaBrowserHelper(this, MediaService.class);
+        mMediaBrowserHelper.setMediaBrowserHelperCallback(this);
         mMyApplication = MyApplication.getInstance();
         if (savedInstanceState == null) {
             loadFragment(HomeFragment.newInstance(), true);
         }
     }
-
-    private boolean mIsPlaying;
 
     @Override
     public void playPause() {
@@ -186,4 +191,14 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         getSupportActionBar().setTitle(title);
     }
 
+    @Override
+    public void onMetadataChanged(MediaMetadataCompat metaData) {
+
+    }
+
+    @Override
+    public void onPlaybackStateChanged(PlaybackStateCompat state) {
+        mIsPlaying = state != null &&
+                state.getState() == PlaybackStateCompat.STATE_PLAYING;
+    }
 }
