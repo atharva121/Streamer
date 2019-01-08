@@ -140,5 +140,10 @@ public class PlaylistFragment extends Fragment implements
         mSelectedMedia = mMediaList.get(position);
         mAdapter.setSelectedIndex(position);
         mIMainActivity.onMediaSelected(mSelectedArtist.getArtist_id(), mSelectedMedia, position);
+        saveLastPlayedSongProperties();
+    }
+
+    private void saveLastPlayedSongProperties(){
+        mIMainActivity.getMyPrefManager().setPlaylistId(mSelectedArtist.getArtist_id());
     }
 }

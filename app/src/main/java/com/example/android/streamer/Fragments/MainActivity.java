@@ -17,11 +17,13 @@ import com.example.android.streamer.MyApplication;
 import com.example.android.streamer.R;
 import com.example.android.streamer.Services.MediaService;
 import com.example.android.streamer.Util.MainActivityFragmentManager;
+import com.example.android.streamer.Util.MyPreferenceManager;
 import com.google.firestore.admin.v1beta1.Progress;
 
 import java.util.ArrayList;
 
 import static com.example.android.streamer.Util.Constants.MEDIA_QUEUE_POSITION;
+import static com.example.android.streamer.Util.Constants.QUEUE_NEW_PLAYLIST;
 
 public class MainActivity extends AppCompatActivity implements IMainActivity {
 
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     private ProgressBar mProgressBar;
     private MediaBrowserHelper mMediaBrowserHelper;
     private MyApplication mMyApplication;
+    private MyPreferenceManager mMyPrefManager;
 
 
     @Override
@@ -36,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mProgressBar = findViewById(R.id.progress_bar);
+        mMyPrefManager = new MyPreferenceManager(this);
         mMediaBrowserHelper = new MediaBrowserHelper(this, MediaService.class);
         mMyApplication = MyApplication.getInstance();
         if (savedInstanceState == null) {
@@ -64,14 +68,27 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     public void onMediaSelected(String playlistId, MediaMetadataCompat mediaItem, int queuePosition) {
         if (mediaItem != null){
             Log.d(TAG, "onMediaSelected: Called: " + mediaItem.getDescription().getMediaId());
+            String currentPlaylistId = getMyPrefManager().getPlaylistId();
             Bundle bundle = new Bundle();
             bundle.putInt(MEDIA_QUEUE_POSITION, queuePosition);
-            mMediaBrowserHelper.subscribeToNewPlaylist(playlistId);
-            mMediaBrowserHelper.getTransportControls().playFromMediaId(mediaItem.getDescription().getMediaId(), bundle);
+            if (playlistId.equals(currentPlaylistId)){
+                mMediaBrowserHelper.getTransportControls().playFromMediaId(mediaItem.getDescription().getMediaId(), bundle);
+            }
+            else {
+                bundle.putBoolean(QUEUE_NEW_PLAYLIST, true);
+                mMediaBrowserHelper.subscribeToNewPlaylist(playlistId);
+                mMediaBrowserHelper.getTransportControls().playFromMediaId(mediaItem.getDescription().getMediaId(), bundle);
+            }
+
         }
         else {
             Toast.makeText(this, "select something to play", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public MyPreferenceManager getMyPrefManager() {
+        return mMyPrefManager;
     }
 
     @Override
