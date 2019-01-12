@@ -57,10 +57,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void playPause() {
         if (mIsPlaying) {
-            mMediaBrowserHelper.getTransportControls().skipToNext();
+            mMediaBrowserHelper.getTransportControls().pause();
         } else {
             mMediaBrowserHelper.getTransportControls().play();
-            mIsPlaying = true;
         }
     }
 
@@ -193,12 +192,29 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onMetadataChanged(MediaMetadataCompat metaData) {
-
+        if (metaData == null){
+            return;
+        }
+        if (getMediaControllerFragment() != null) {
+            getMediaControllerFragment().setMediaTitle(metaData);
+        }
     }
 
     @Override
     public void onPlaybackStateChanged(PlaybackStateCompat state) {
         mIsPlaying = state != null &&
                 state.getState() == PlaybackStateCompat.STATE_PLAYING;
+        if (getMediaControllerFragment() != null){
+            getMediaControllerFragment().setIsPlaying(mIsPlaying);
+        }
+    }
+
+    private MediaControllerFragment getMediaControllerFragment(){
+        MediaControllerFragment mediaControllerFragment = (MediaControllerFragment)getSupportFragmentManager()
+                .findFragmentById(R.id.bottom_media_controller);
+        if (mediaControllerFragment != null){
+            return mediaControllerFragment;
+        }
+        return null;
     }
 }
