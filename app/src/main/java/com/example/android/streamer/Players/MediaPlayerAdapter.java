@@ -165,6 +165,7 @@ public class MediaPlayerAdapter extends PlayerAdapter {
             mCurrentMediaPlayedToCompletion = true;
         }
         final long reportPosition = mExoPlayer == null ? 0 : mExoPlayer.getCurrentPosition();
+        publishStateBuilder(reportPosition);
     }
 
     private void publishStateBuilder(long reportPosition){
