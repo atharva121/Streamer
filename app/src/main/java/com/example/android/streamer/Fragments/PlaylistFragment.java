@@ -73,6 +73,9 @@ public class PlaylistFragment extends Fragment implements
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initRecyclerView(view);
         mIMainActivity.setActionBarTitle(mSelectedArtist.getTitle());
+        if (savedInstanceState != null){
+            mAdapter.setSelectedIndex(savedInstanceState.getInt("selected_index"));
+        }
     }
 
     public void updateUI(MediaMetadataCompat mediaItem){
@@ -151,5 +154,11 @@ public class PlaylistFragment extends Fragment implements
 
     private void saveLastPlayedSongProperties(){
         mIMainActivity.getMyPrefManager().setPlaylistId(mSelectedArtist.getArtist_id());
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("selected_index", mAdapter.getSelectedIndex());
     }
 }

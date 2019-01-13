@@ -27,7 +27,8 @@ public class MediaControllerFragment extends Fragment implements
     private ImageView mPlayPause;
     private MediaSeekBar mSeekBarAudio;
     private IMainActivity mIMainActivity;
-
+    private boolean  mIsPlaying;
+    private MediaMetadataCompat mSelectedMedia;
 
 
     @Nullable
@@ -42,6 +43,13 @@ public class MediaControllerFragment extends Fragment implements
         mPlayPause = view.findViewById(R.id.play_pause);
         mSeekBarAudio = view.findViewById(R.id.seekbar_audio);
         mPlayPause.setOnClickListener(this);
+        if (savedInstanceState != null){
+            mSelectedMedia = savedInstanceState.getParcelable("selected_media");
+            if (mSelectedMedia != null){
+                setMediaTitle(mSelectedMedia);
+                setIsPlaying(savedInstanceState.getBoolean("is_playing"));
+            }
+        }
     }
 
     @Override
@@ -62,9 +70,11 @@ public class MediaControllerFragment extends Fragment implements
                     .load(R.drawable.ic_play_circle_outline_white_24dp)
                     .into(mPlayPause);
         }
+        mIsPlaying = isPlaying;
     }
 
     public void setMediaTitle(MediaMetadataCompat mediaItem){
+        mSelectedMedia = mediaItem;
         mSongTitle.setText(mediaItem.getDescription().getTitle());
     }
 
@@ -76,6 +86,13 @@ public class MediaControllerFragment extends Fragment implements
 
     public MediaSeekBar getMediaSeekBar(){
         return mSeekBarAudio;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("selected_media", mSelectedMedia);
+        outState.putBoolean("is_playing", mIsPlaying);
     }
 }
 
