@@ -3,6 +3,7 @@ package com.example.android.streamer.Services;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaBrowserCompat;
@@ -20,6 +21,7 @@ import com.example.android.streamer.Players.PlaybackInfoListener;
 import com.example.android.streamer.Players.PlayerAdapter;
 import com.example.android.streamer.R;
 import com.example.android.streamer.Util.MediaLibrary;
+import com.example.android.streamer.Util.MyPreferenceManager;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 
 import java.util.ArrayList;
@@ -35,11 +37,13 @@ public class MediaService extends MediaBrowserServiceCompat {
     private MediaSessionCompat mSession;
     private PlayerAdapter mPlayback;
     private MyApplication mMyApplication;
+    private MyPreferenceManager mMyPrefManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
         mMyApplication = MyApplication.getInstance();
+        mMyPrefManager = new MyPreferenceManager(this);
         mSession = new MediaSessionCompat(this, TAG);
         mSession.setFlags(
                 MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
@@ -112,6 +116,8 @@ public class MediaService extends MediaBrowserServiceCompat {
                 onPrepare();
             }
             mPlayback.playFromMedia(mPreparedMedia);
+            mMyPrefManager.saveQueuePosition(mQueueIndex);
+            mMyPrefManager.saveLastPlayedMedia(mPreparedMedia.getDescription().getMediaId());
         }
 
         @Override
@@ -133,6 +139,8 @@ public class MediaService extends MediaBrowserServiceCompat {
             else {
                 mQueueIndex = newQueuePosition;
             }
+            mMyPrefManager.saveQueuePosition(mQueueIndex);
+            mMyPrefManager.saveLastPlayedMedia(mPreparedMedia.getDescription().getMediaId());
         }
 
         @Override

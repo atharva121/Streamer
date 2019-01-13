@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -25,9 +26,16 @@ import com.example.android.streamer.R;
 import com.example.android.streamer.Services.MediaService;
 import com.example.android.streamer.Util.MainActivityFragmentManager;
 import com.example.android.streamer.Util.MyPreferenceManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firestore.admin.v1beta1.Progress;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.android.streamer.Util.Constants.MEDIA_QUEUE_POSITION;
 import static com.example.android.streamer.Util.Constants.QUEUE_NEW_PLAYLIST;
@@ -47,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements
     private boolean mIsPlaying;
     private SeekBarBroadcastReciever mSeekBarBroadcastReciever;
     private UpdateUIBroadcastReciever mUpdateUIBroadcastReciever;
+    final List<MediaMetadataCompat> mediaItems = new ArrayList<>();
 
 
     @Override
@@ -119,19 +128,39 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
     }
-
-    @Override
-    public void playPause() {
-        if (mIsPlaying) {
-            mMediaBrowserHelper.getTransportControls().pause();
-        } else {
-            mMediaBrowserHelper.getTransportControls().play();
-        }
-    }
+    private boolean mOnAppOpen;
 
     @Override
     public MyApplication getMyApplication() {
         return mMyApplication;
+    }
+
+    @Override
+    public void playPause() {
+        if (mOnAppOpen){
+            if (mIsPlaying) {
+                mMediaBrowserHelper.getTransportControls().pause();
+            } else {
+                mMediaBrowserHelper.getTransportControls().play();
+            }
+        }
+        else {
+            if (getMyPrefManager().getPlaylistId().equals("")){
+                onMediaSelected(
+                        getMyPrefManager().getPlaylistId(),
+                        mMyApplication.getMediaItem(getMyPrefManager().getLastPlayedMedia()),
+                        getMyPrefManager().getQueuePosition()
+                );
+            }
+            else {
+                Toast.makeText(this, "select something to play", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public MyPreferenceManager getMyPrefManager() {
+        return mMyPrefManager;
     }
 
     @Override
@@ -149,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements
                 mMediaBrowserHelper.subscribeToNewPlaylist(playlistId);
                 mMediaBrowserHelper.getTransportControls().playFromMediaId(mediaItem.getDescription().getMediaId(), bundle);
             }
-
+            mOnAppOpen = true;
         }
         else {
             Toast.makeText(this, "select something to play", Toast.LENGTH_SHORT).show();
@@ -157,14 +186,62 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public MyPreferenceManager getMyPrefManager() {
-        return mMyPrefManager;
-    }
-
-    @Override
     protected void onStart() {
         super.onStart();
+        if (!getMyPrefManager().getPlaylistId().equals("")){
+            prepareLastPlayedMedia();
+        }
+        else {
+            mMediaBrowserHelper.onStart();
+        }
+    }
+
+    private void prepareLastPlayedMedia() {
+        showProgressBar();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        Query query = firestore
+                .collection(getString(R.string.collection_audio))
+                .document(getString(R.string.document_categories))
+                .collection(getMyPrefManager().getLastCategory())
+                .document(getMyPrefManager().getLastPlayedArtist())
+                .collection(getString(R.string.collection_content))
+                .orderBy(getString(R.string.field_date_added), Query.Direction.ASCENDING);
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        MediaMetadataCompat mediaItem = addToMediaList(document);
+                        mediaItems.add(mediaItem);
+                        if (mediaItem.getDescription().getMediaId().equals(getMyPrefManager().getLastPlayedMedia())){
+                            getMediaControllerFragment().setMediaTitle(mediaItem);
+                        }
+                    }
+                } else {
+                    Log.d(TAG, "onComplete: error getting the documents: " + task.getException());
+                }
+                onFinishedGettingPreviousSessionData(mediaItems);
+            }
+        });
+    }
+
+    private void onFinishedGettingPreviousSessionData(List<MediaMetadataCompat> mediaItems) {
+        getMyApplication().setMediaItems(mediaItems);
         mMediaBrowserHelper.onStart();
+        hideProgressBar();
+    }
+
+    private MediaMetadataCompat addToMediaList(QueryDocumentSnapshot document) {
+        MediaMetadataCompat media = new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, document.getString(getString(R.string.field_media_id)))
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, document.getString(getString(R.string.field_artist)))
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, document.getString(getString(R.string.field_title)))
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, document.getString(getString(R.string.field_media_url)))
+                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, document.getString(getString(R.string.field_description)))
+                .putString(MediaMetadataCompat.METADATA_KEY_DATE, document.getDate(getString(R.string.field_date_added)).toString())
+                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, getMyPrefManager().getLastPlayedArtistImage())
+                .build();
+        return media;
     }
 
     @Override

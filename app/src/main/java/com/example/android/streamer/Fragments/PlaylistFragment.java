@@ -69,16 +69,26 @@ public class PlaylistFragment extends Fragment implements
         setRetainInstance(true);
     }
 
+    private void getSelectedMediaItem(String mediaId){
+        for (MediaMetadataCompat mediaItem : mMediaList){
+            if (mediaItem.getDescription().getMediaId().equals(mediaId)){
+                mSelectedMedia = mediaItem;
+                mAdapter.setSelectedIndex(mAdapter.getIndexOfItem(mSelectedMedia));
+                break;
+            }
+        }
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initRecyclerView(view);
         mIMainActivity.setActionBarTitle(mSelectedArtist.getTitle());
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             mAdapter.setSelectedIndex(savedInstanceState.getInt("selected_index"));
         }
     }
 
-    public void updateUI(MediaMetadataCompat mediaItem){
+    public void updateUI(MediaMetadataCompat mediaItem) {
         mAdapter.setSelectedIndex(mAdapter.getIndexOfItem(mediaItem));
         mSelectedMedia = mediaItem;
         saveLastPlayedSongProperties();
@@ -125,6 +135,9 @@ public class PlaylistFragment extends Fragment implements
     private void updateDataSet() {
         mIMainActivity.hideProgressBar();
         mAdapter.notifyDataSetChanged();
+        if (mIMainActivity.getMyPrefManager().getLastPlayedArtist().equals(mSelectedArtist.getArtist_id())){
+            getSelectedMediaItem(mIMainActivity.getMyPrefManager().getLastPlayedMedia());
+        }
     }
 
     private void initRecyclerView(View view) {
@@ -152,8 +165,12 @@ public class PlaylistFragment extends Fragment implements
         saveLastPlayedSongProperties();
     }
 
-    private void saveLastPlayedSongProperties(){
-        mIMainActivity.getMyPrefManager().setPlaylistId(mSelectedArtist.getArtist_id());
+    private void saveLastPlayedSongProperties() {
+        mIMainActivity.getMyPrefManager().savePlaylistId(mSelectedArtist.getArtist_id());
+        mIMainActivity.getMyPrefManager().saveLastPlayedArtist(mSelectedArtist.getArtist_id());
+        mIMainActivity.getMyPrefManager().saveLastPlayedCategory(mSelectedCategory);
+        mIMainActivity.getMyPrefManager().saveLastPlayedArtistImage(mSelectedArtist.getImage());
+        mIMainActivity.getMyPrefManager().saveLastPlayedMedia(mSelectedMedia.getDescription().getMediaId());
     }
 
     @Override
