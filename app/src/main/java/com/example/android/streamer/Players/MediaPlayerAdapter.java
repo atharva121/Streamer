@@ -193,6 +193,7 @@ public class MediaPlayerAdapter extends PlayerAdapter {
                 SystemClock.elapsedRealtime()
         );
         mPlaybackInfoListener.onPlaybackStateChanged(stateBuilder.build());
+        mPlaybackInfoListener.updateUI(mCurrentMedia.getDescription().getMediaId());
     }
 
     private class ExoPlayerEventListener implements Player.EventListener{

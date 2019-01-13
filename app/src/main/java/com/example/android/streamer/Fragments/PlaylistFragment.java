@@ -75,6 +75,12 @@ public class PlaylistFragment extends Fragment implements
         mIMainActivity.setActionBarTitle(mSelectedArtist.getTitle());
     }
 
+    public void updateUI(MediaMetadataCompat mediaItem){
+        mAdapter.setSelectedIndex(mAdapter.getIndexOfItem(mediaItem));
+        mSelectedMedia = mediaItem;
+        saveLastPlayedSongProperties();
+    }
+
     private void retrieveMedia() {
         mIMainActivity.showProgressBar();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();

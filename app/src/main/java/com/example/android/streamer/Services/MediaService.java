@@ -1,6 +1,7 @@
 package com.example.android.streamer.Services;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -207,6 +208,14 @@ public class MediaService extends MediaBrowserServiceCompat {
         public void onPlaybackComplete() {
             Log.d(TAG, "onPlaybackComplete: SKIPPING TO NEXT");
             mSession.getController().getTransportControls().skipToNext();
+        }
+
+        @Override
+        public void updateUI(String mediaId) {
+            Intent intent = new Intent();
+            intent.setAction(getString(R.string.broadcast_update_ui));
+            intent.putExtra(getString(R.string.broadcast_new_media_id), mediaId);
+            sendBroadcast(intent);
         }
     }
 }

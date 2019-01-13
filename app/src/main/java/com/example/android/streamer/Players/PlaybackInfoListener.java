@@ -6,4 +6,5 @@ public interface PlaybackInfoListener {
     void onPlaybackStateChanged(PlaybackStateCompat state);
     void seekTo(long progress, long max);
     void onPlaybackComplete();
+    void updateUI(String newMediaId);
 }

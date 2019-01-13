@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements
     private MyPreferenceManager mMyPrefManager;
     private boolean mIsPlaying;
     private SeekBarBroadcastReciever mSeekBarBroadcastReciever;
+    private UpdateUIBroadcastReciever mUpdateUIBroadcastReciever;
 
 
     @Override
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         initSeekBarBroadcastReciever();
+        initUpdateUIBroadcastReciever();
     }
 
     private void initSeekBarBroadcastReciever(){
@@ -80,11 +82,41 @@ public class MainActivity extends AppCompatActivity implements
         registerReceiver(mSeekBarBroadcastReciever, intentFilter);
     }
 
+    private PlaylistFragment getPlaylistFragment(){
+        PlaylistFragment playlistFragment = (PlaylistFragment) getSupportFragmentManager()
+                .findFragmentByTag(getString(R.string.fragment_playlist));
+        if (playlistFragment != null){
+            return playlistFragment;
+        }
+        return null;
+    }
+
+    private void initUpdateUIBroadcastReciever(){
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(getString(R.string.broadcast_update_ui));
+        mUpdateUIBroadcastReciever = new UpdateUIBroadcastReciever();
+        registerReceiver(mUpdateUIBroadcastReciever, intentFilter);
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
         if (mSeekBarBroadcastReciever != null){
             unregisterReceiver(mSeekBarBroadcastReciever);
+        }
+        if (mUpdateUIBroadcastReciever != null){
+            unregisterReceiver(mUpdateUIBroadcastReciever);
+        }
+    }
+
+    private class UpdateUIBroadcastReciever extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String mediaID = intent.getStringExtra(getString(R.string.broadcast_new_media_id));
+            Log.d(TAG, "onReceive: media id: " + mediaID);
+            if (getPlaylistFragment() != null){
+                getPlaylistFragment().updateUI(mMyApplication.getMediaItem(mediaID));
+            }
         }
     }
 
