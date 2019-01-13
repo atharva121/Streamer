@@ -88,6 +88,7 @@ public class MediaBrowserHelper {
             try {
                 mMediaController = new MediaControllerCompat(mContext, mMediaBrowser.getSessionToken());
                 mMediaController.registerCallback(mMediaControllerCallback);
+                mMediaBrowserCallback.onMediaControllerConnectedd(mMediaController);
             }catch (RemoteException e){
                 Log.d(TAG, "onConnected: ocnnection problem: " + e.toString());
                 throw new RuntimeException(e);

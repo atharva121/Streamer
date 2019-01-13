@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -59,6 +60,11 @@ public class MainActivity extends AppCompatActivity implements
         if (savedInstanceState == null) {
             loadFragment(HomeFragment.newInstance(), true);
         }
+    }
+
+    @Override
+    public void onMediaControllerConnectedd(MediaControllerCompat mediaController) {
+        getMediaControllerFragment().getMediaSeekBar().setMediaController(mediaController);
     }
 
     @Override
@@ -132,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStop() {
         super.onStop();
+        getMediaControllerFragment().getMediaSeekBar().disconnectController();
         mMediaBrowserHelper.onStop();
     }
 
@@ -251,12 +258,10 @@ public class MainActivity extends AppCompatActivity implements
         public void onReceive(Context context, Intent intent) {
             long seekProgress = intent.getLongExtra(SEEK_BAR_PROGRESS, 0);
             long maxProgress = intent.getLongExtra(SEEK_BAR_MAX, 0);
-            /*if (getMediaControllerFragment().getMediaSeekBar().isTracking()){
+            if (getMediaControllerFragment().getMediaSeekBar().isTracking()){
                 getMediaControllerFragment().getMediaSeekBar().setProgress((int)seekProgress);
                 getMediaControllerFragment().getMediaSeekBar().setMax((int)maxProgress);
-            }*/
-            getMediaControllerFragment().getMediaSeekBar().setProgress((int)seekProgress);
-            getMediaControllerFragment().getMediaSeekBar().setMax((int)maxProgress);
+            }
         }
     }
 }
