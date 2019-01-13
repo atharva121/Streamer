@@ -17,6 +17,7 @@ import com.example.android.streamer.MyApplication;
 import com.example.android.streamer.Players.MediaPlayerAdapter;
 import com.example.android.streamer.Players.PlaybackInfoListener;
 import com.example.android.streamer.Players.PlayerAdapter;
+import com.example.android.streamer.R;
 import com.example.android.streamer.Util.MediaLibrary;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 
@@ -25,6 +26,8 @@ import java.util.List;
 
 import static com.example.android.streamer.Util.Constants.MEDIA_QUEUE_POSITION;
 import static com.example.android.streamer.Util.Constants.QUEUE_NEW_PLAYLIST;
+import static com.example.android.streamer.Util.Constants.SEEK_BAR_MAX;
+import static com.example.android.streamer.Util.Constants.SEEK_BAR_PROGRESS;
 
 public class MediaService extends MediaBrowserServiceCompat {
     private static final String TAG = "MediaService";
@@ -189,6 +192,21 @@ public class MediaService extends MediaBrowserServiceCompat {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
             mSession.setPlaybackState(state);
+        }
+
+        @Override
+        public void seekTo(long progress, long max) {
+            Intent intent = new Intent();
+            intent.setAction(getString(R.string.broadcast_seekbar_update));
+            intent.putExtra(SEEK_BAR_PROGRESS, progress);
+            intent.putExtra(SEEK_BAR_MAX, max);
+            sendBroadcast(intent);
+        }
+
+        @Override
+        public void onPlaybackComplete() {
+            Log.d(TAG, "onPlaybackComplete: SKIPPING TO NEXT");
+            mSession.getController().getTransportControls().skipToNext();
         }
     }
 }

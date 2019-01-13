@@ -2,6 +2,7 @@ package com.example.android.streamer.Players;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -156,7 +157,21 @@ public class MediaPlayerAdapter extends PlayerAdapter {
     }
 
     private void startTrackingPlayback() {
-
+        final Handler handler = new Handler();
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isPlaying()){
+                    mPlaybackInfoListener.seekTo(mExoPlayer.getContentPosition(), mExoPlayer.getDuration());
+                    handler.postDelayed(this, 100);
+                }
+                if (mExoPlayer.getContentPosition() >= mExoPlayer.getDuration()
+                        && mExoPlayer.getDuration() > 0){
+                    mPlaybackInfoListener.onPlaybackComplete();
+                }
+            }
+        };
+        handler.postDelayed(runnable, 100);
     }
 
     private void setNewState(@PlaybackStateCompat.State int newPlayerState){
@@ -165,6 +180,7 @@ public class MediaPlayerAdapter extends PlayerAdapter {
             mCurrentMediaPlayedToCompletion = true;
         }
         final long reportPosition = mExoPlayer == null ? 0 : mExoPlayer.getCurrentPosition();
+        publishStateBuilder(reportPosition);
     }
 
     private void publishStateBuilder(long reportPosition){

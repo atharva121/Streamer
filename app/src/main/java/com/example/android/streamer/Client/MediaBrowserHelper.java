@@ -90,6 +90,7 @@ public class MediaBrowserHelper {
                 mMediaController.registerCallback(mMediaControllerCallback);
             }catch (RemoteException e){
                 Log.d(TAG, "onConnected: ocnnection problem: " + e.toString());
+                throw new RuntimeException(e);
             }
             mMediaBrowser.subscribe(mMediaBrowser.getRoot(), mMediaBrowserSubscriptionCallback);
         }

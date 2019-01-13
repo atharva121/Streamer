@@ -73,5 +73,9 @@ public class MediaControllerFragment extends Fragment implements
         super.onAttach(context);
         mIMainActivity = (IMainActivity) getActivity();
     }
+
+    public MediaSeekBar getMediaSeekBar(){
+        return mSeekBarAudio;
+    }
 }
 

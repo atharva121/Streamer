@@ -1,5 +1,9 @@
 package com.example.android.streamer.Fragments;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -26,6 +30,8 @@ import java.util.ArrayList;
 
 import static com.example.android.streamer.Util.Constants.MEDIA_QUEUE_POSITION;
 import static com.example.android.streamer.Util.Constants.QUEUE_NEW_PLAYLIST;
+import static com.example.android.streamer.Util.Constants.SEEK_BAR_MAX;
+import static com.example.android.streamer.Util.Constants.SEEK_BAR_PROGRESS;
 
 public class MainActivity extends AppCompatActivity implements
         IMainActivity,
@@ -38,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements
     private MyApplication mMyApplication;
     private MyPreferenceManager mMyPrefManager;
     private boolean mIsPlaying;
+    private SeekBarBroadcastReciever mSeekBarBroadcastReciever;
 
 
     @Override
@@ -51,6 +58,27 @@ public class MainActivity extends AppCompatActivity implements
         mMyApplication = MyApplication.getInstance();
         if (savedInstanceState == null) {
             loadFragment(HomeFragment.newInstance(), true);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initSeekBarBroadcastReciever();
+    }
+
+    private void initSeekBarBroadcastReciever(){
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(getString(R.string.broadcast_seekbar_update));
+        mSeekBarBroadcastReciever = new SeekBarBroadcastReciever();
+        registerReceiver(mSeekBarBroadcastReciever, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mSeekBarBroadcastReciever != null){
+            unregisterReceiver(mSeekBarBroadcastReciever);
         }
     }
 
@@ -216,5 +244,19 @@ public class MainActivity extends AppCompatActivity implements
             return mediaControllerFragment;
         }
         return null;
+    }
+
+    private class SeekBarBroadcastReciever extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            long seekProgress = intent.getLongExtra(SEEK_BAR_PROGRESS, 0);
+            long maxProgress = intent.getLongExtra(SEEK_BAR_MAX, 0);
+            /*if (getMediaControllerFragment().getMediaSeekBar().isTracking()){
+                getMediaControllerFragment().getMediaSeekBar().setProgress((int)seekProgress);
+                getMediaControllerFragment().getMediaSeekBar().setMax((int)maxProgress);
+            }*/
+            getMediaControllerFragment().getMediaSeekBar().setProgress((int)seekProgress);
+            getMediaControllerFragment().getMediaSeekBar().setMax((int)maxProgress);
+        }
     }
 }
