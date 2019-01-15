@@ -1,11 +1,11 @@
 package com.example.android.streamer.Services;
 
+import android.app.Notification;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -16,13 +16,12 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.android.streamer.MyApplication;
+import com.example.android.streamer.Notificatons.MediaNotificationManager;
 import com.example.android.streamer.Players.MediaPlayerAdapter;
 import com.example.android.streamer.Players.PlaybackInfoListener;
 import com.example.android.streamer.Players.PlayerAdapter;
 import com.example.android.streamer.R;
-import com.example.android.streamer.Util.MediaLibrary;
 import com.example.android.streamer.Util.MyPreferenceManager;
-import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +37,8 @@ public class MediaService extends MediaBrowserServiceCompat {
     private PlayerAdapter mPlayback;
     private MyApplication mMyApplication;
     private MyPreferenceManager mMyPrefManager;
+    private MediaNotificationManager mMediaNotificationManager;
+    private boolean mIsServiceStarted;
 
     @Override
     public void onCreate() {
@@ -52,6 +53,7 @@ public class MediaService extends MediaBrowserServiceCompat {
         mSession.setCallback(new MediaSessionCallback());
         setSessionToken(mSession.getSessionToken());
         mPlayback = new MediaPlayerAdapter(this, new MediaPlayerListener());
+        mMediaNotificationManager = new MediaNotificationManager(this);
     }
 
     @Override
@@ -224,6 +226,41 @@ public class MediaService extends MediaBrowserServiceCompat {
             intent.setAction(getString(R.string.broadcast_update_ui));
             intent.putExtra(getString(R.string.broadcast_new_media_id), mediaId);
             sendBroadcast(intent);
+        }
+
+        class ServiceManager{
+            private PlaybackStateCompat mState;
+
+            public ServiceManager() {
+            }
+
+            public void displayNotification(PlaybackStateCompat state){
+                Notification notification = null;
+                switch (state.getState()){
+                    case PlaybackStateCompat.STATE_PLAYING: {
+                        notification = mMediaNotificationManager.buildNotification(
+                                state, getSessionToken(), mPlayback.getCurrentMedia().getDescription(), null);
+                        if (!mIsServiceStarted) {
+                            ContextCompat.startForegroundService(MediaService.this,
+                                    new Intent(MediaService.this, MediaService.class));
+                            mIsServiceStarted = true;
+                        }
+                        startForeground(MediaNotificationManager.NOTIFICATION_ID, notification);
+                    }
+
+                    case PlaybackStateCompat.STATE_PAUSED: {
+                        stopForeground(false);
+                        notification = mMediaNotificationManager.buildNotification(
+                                state, getSessionToken(), mPlayback.getCurrentMedia().getDescription(), null);
+                        mMediaNotificationManager.getNotificationManager().notify(MediaNotificationManager.NOTIFICATION_ID, notification);
+                    }
+                }
+            }
+            private void moveServiceOutOfStartedState(){
+                stopForeground(true);
+                stopSelf();
+                mIsServiceStarted = false;
+            }
         }
     }
 }

@@ -33,6 +33,7 @@ public class MediaNotificationManager {
     private final NotificationCompat.Action mPauseAction;
     private final NotificationCompat.Action mNextAction;
     private final NotificationCompat.Action mPrevAction;
+    public static final int NOTIFICATION_ID = 201;
 
     public MediaNotificationManager(MediaService mediaService) {
         this.mMediaService = mediaService;
