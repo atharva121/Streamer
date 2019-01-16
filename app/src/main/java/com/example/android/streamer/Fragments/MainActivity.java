@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements
     private SeekBarBroadcastReciever mSeekBarBroadcastReciever;
     private UpdateUIBroadcastReciever mUpdateUIBroadcastReciever;
     final List<MediaMetadataCompat> mediaItems = new ArrayList<>();
+    private boolean mWasConfigurationChanged;
 
 
     @Override
@@ -70,6 +72,12 @@ public class MainActivity extends AppCompatActivity implements
         if (savedInstanceState == null) {
             loadFragment(HomeFragment.newInstance(), true);
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mWasConfigurationChanged = true;
     }
 
     @Override
@@ -192,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements
             prepareLastPlayedMedia();
         }
         else {
-            mMediaBrowserHelper.onStart();
+            mMediaBrowserHelper.onStart(mWasConfigurationChanged);
         }
     }
 
@@ -227,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void onFinishedGettingPreviousSessionData(List<MediaMetadataCompat> mediaItems) {
         getMyApplication().setMediaItems(mediaItems);
-        mMediaBrowserHelper.onStart();
+        mMediaBrowserHelper.onStart(mWasConfigurationChanged);
         hideProgressBar();
     }
 

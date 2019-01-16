@@ -23,6 +23,7 @@ public class MediaBrowserHelper {
     private MediaBrowserSubscriptionCallback mMediaBrowserSubscriptionCallback;
     private MediaControllerCallback mMediaControllerCallback;
     private MediaBrowserHelperCallback mMediaBrowserCallback;
+    private boolean mWasConfigurationChanged;
 
     public MediaBrowserHelper(Context context, Class<? extends MediaBrowserServiceCompat> mediaBrowserServiceClass) {
         this.mContext = context;
@@ -51,7 +52,8 @@ public class MediaBrowserHelper {
         mMediaBrowser.subscribe(playlistId, mMediaBrowserSubscriptionCallback);
     }
 
-    public void onStart(){
+    public void onStart(boolean wasConfigurationChanged){
+        mWasConfigurationChanged = wasConfigurationChanged;
         if (mMediaBrowser == null){
             mMediaBrowser = new MediaBrowserCompat(
                     mContext,
@@ -100,8 +102,10 @@ public class MediaBrowserHelper {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaBrowserCompat.MediaItem> children) {
             Log.d(TAG, "onChildrenLoaded: called: " + parentId + ", " + children.toString());
-            for (final MediaBrowserCompat.MediaItem mediaItem : children){
-                mMediaController.addQueueItem(mediaItem.getDescription());
+            if (!mWasConfigurationChanged) {
+                for (final MediaBrowserCompat.MediaItem mediaItem : children) {
+                    mMediaController.addQueueItem(mediaItem.getDescription());
+                }
             }
         }
     }
