@@ -15,5 +15,5 @@ public interface IMainActivity {
     void playPause();
     MyApplication getMyApplication();
     void onMediaSelected(String playlistId, MediaMetadataCompat mediaItem, int queuePosition);
-    MyPreferenceManager getMyPrefManager();
+    MyPreferenceManager getMyPreferenceManager();
 }

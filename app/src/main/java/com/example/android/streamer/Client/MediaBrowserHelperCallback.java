@@ -7,5 +7,5 @@ import android.support.v4.media.session.PlaybackStateCompat;
 public interface MediaBrowserHelperCallback {
     void onMetadataChanged(final MediaMetadataCompat metaData);
     void onPlaybackStateChanged(PlaybackStateCompat state);
-    void onMediaControllerConnectedd(MediaControllerCompat mediaController);
+    void onMediaControllerConnected(MediaControllerCompat mediaController);
 }

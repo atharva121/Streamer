@@ -135,8 +135,8 @@ public class PlaylistFragment extends Fragment implements
     private void updateDataSet() {
         mIMainActivity.hideProgressBar();
         mAdapter.notifyDataSetChanged();
-        if (mIMainActivity.getMyPrefManager().getLastPlayedArtist().equals(mSelectedArtist.getArtist_id())){
-            getSelectedMediaItem(mIMainActivity.getMyPrefManager().getLastPlayedMedia());
+        if (mIMainActivity.getMyPreferenceManager().getLastPlayedArtist().equals(mSelectedArtist.getArtist_id())){
+            getSelectedMediaItem(mIMainActivity.getMyPreferenceManager().getLastPlayedMedia());
         }
     }
 
@@ -166,11 +166,11 @@ public class PlaylistFragment extends Fragment implements
     }
 
     private void saveLastPlayedSongProperties() {
-        mIMainActivity.getMyPrefManager().savePlaylistId(mSelectedArtist.getArtist_id());
-        mIMainActivity.getMyPrefManager().saveLastPlayedArtist(mSelectedArtist.getArtist_id());
-        mIMainActivity.getMyPrefManager().saveLastPlayedCategory(mSelectedCategory);
-        mIMainActivity.getMyPrefManager().saveLastPlayedArtistImage(mSelectedArtist.getImage());
-        mIMainActivity.getMyPrefManager().saveLastPlayedMedia(mSelectedMedia.getDescription().getMediaId());
+        mIMainActivity.getMyPreferenceManager().savePlaylistId(mSelectedArtist.getArtist_id());
+        mIMainActivity.getMyPreferenceManager().saveLastPlayedArtist(mSelectedArtist.getArtist_id());
+        mIMainActivity.getMyPreferenceManager().saveLastPlayedCategory(mSelectedCategory);
+        mIMainActivity.getMyPreferenceManager().saveLastPlayedArtistImage(mSelectedArtist.getImage());
+        mIMainActivity.getMyPreferenceManager().saveLastPlayedMedia(mSelectedMedia.getDescription().getMediaId());
     }
 
     @Override
