@@ -22,6 +22,7 @@ import com.example.android.streamer.Players.PlaybackInfoListener;
 import com.example.android.streamer.Players.PlayerAdapter;
 import com.example.android.streamer.R;
 import com.example.android.streamer.Util.MyPreferenceManager;
+import com.google.common.util.concurrent.ServiceManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -200,9 +201,26 @@ public class MediaService extends MediaBrowserServiceCompat {
     }
 
     private class MediaPlayerListener implements PlaybackInfoListener{
+        private ServiceManager mServiceManager;
+
+        public MediaPlayerListener() {
+            mServiceManager = new ServiceManager();
+        }
+
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
             mSession.setPlaybackState(state);
+            switch (state.getState()){
+                case PlaybackStateCompat.STATE_PLAYING:
+                    mServiceManager.displayNotification(state);
+                    break;
+                case PlaybackStateCompat.STATE_PAUSED:
+                    mServiceManager.displayNotification(state);
+                    break;
+                case PlaybackStateCompat.STATE_STOPPED:
+                    mServiceManager.moveServiceOutOfStartedState();
+                    break;
+            }
         }
 
         @Override
