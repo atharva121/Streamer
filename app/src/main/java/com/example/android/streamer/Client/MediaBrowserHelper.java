@@ -44,12 +44,21 @@ public class MediaBrowserHelper {
         mMediaBrowserCallback = callback;
     }
 
+    public MediaControllerCompat.TransportControls getTransportControls() {
+        if (mMediaController == null) {
+            Log.d(TAG, "getTransportControls: MediaController is null!");
+            throw new IllegalStateException("MediaController is null!");
+        }
+        return mMediaController.getTransportControls();
+    }
+
     public void subscribeToNewPlaylist(String currentPlaylistId, String newPlatlistId){
         if(!currentPlaylistId.equals("")){
             mMediaBrowser.unsubscribe(currentPlaylistId);
         }
         mMediaBrowser.subscribe(newPlatlistId, mMediaBrowserSubscriptionCallback);
     }
+
 
     public void onStart(boolean wasConfigurationChange) {
         mWasConfigurationChange = wasConfigurationChange;
@@ -75,42 +84,6 @@ public class MediaBrowserHelper {
             mMediaBrowser = null;
         }
         Log.d(TAG, "onStop: CALLED: Releasing MediaController, Disconnecting from MediaBrowser");
-    }
-
-    public MediaControllerCompat.TransportControls getTransportControls() {
-        if (mMediaController == null) {
-            Log.d(TAG, "getTransportControls: MediaController is null!");
-            throw new IllegalStateException("MediaController is null!");
-        }
-        return mMediaController.getTransportControls();
-    }
-
-    // Receives callbacks from the MediaController and updates the UI state,
-    // i.e.: Which is the current item, whether it's playing or paused, etc.
-    private class MediaControllerCallback extends MediaControllerCompat.Callback {
-
-        @Override
-        public void onMetadataChanged(final MediaMetadataCompat metadata) {
-            Log.d(TAG, "onMetadataChanged: CALLED");
-            if(mMediaBrowserCallback != null){
-                mMediaBrowserCallback.onMetadataChanged(metadata);
-            }
-        }
-
-        @Override
-        public void onPlaybackStateChanged(@Nullable final PlaybackStateCompat state) {
-            Log.d(TAG, "onPlaybackStateChanged: CALLED");
-            if(mMediaBrowserCallback != null){
-                mMediaBrowserCallback.onPlaybackStateChanged(state);
-            }
-        }
-
-        // This might happen if the MusicService is killed while the Activity is in the
-        // foreground and onStart() has been called (but not onStop()).
-        @Override
-        public void onSessionDestroyed() {
-            onPlaybackStateChanged(null);
-        }
     }
 
     // Receives callbacks from the MediaBrowser when it has successfully connected to the
@@ -140,6 +113,8 @@ public class MediaBrowserHelper {
         }
     }
 
+
+
     // Receives callbacks from the MediaBrowser when the MediaBrowserService has loaded new media
     // that is ready for playback.
     public class MediaBrowserSubscriptionCallback extends MediaBrowserCompat.SubscriptionCallback {
@@ -156,6 +131,34 @@ public class MediaBrowserHelper {
                 }
             }
 
+        }
+    }
+
+    // Receives callbacks from the MediaController and updates the UI state,
+    // i.e.: Which is the current item, whether it's playing or paused, etc.
+    private class MediaControllerCallback extends MediaControllerCompat.Callback {
+
+        @Override
+        public void onMetadataChanged(final MediaMetadataCompat metadata) {
+            Log.d(TAG, "onMetadataChanged: CALLED");
+            if(mMediaBrowserCallback != null){
+                mMediaBrowserCallback.onMetadataChanged(metadata);
+            }
+        }
+
+        @Override
+        public void onPlaybackStateChanged(@Nullable final PlaybackStateCompat state) {
+            Log.d(TAG, "onPlaybackStateChanged: CALLED");
+            if(mMediaBrowserCallback != null){
+                mMediaBrowserCallback.onPlaybackStateChanged(state);
+            }
+        }
+
+        // This might happen if the MusicService is killed while the Activity is in the
+        // foreground and onStart() has been called (but not onStop()).
+        @Override
+        public void onSessionDestroyed() {
+            onPlaybackStateChanged(null);
         }
     }
 

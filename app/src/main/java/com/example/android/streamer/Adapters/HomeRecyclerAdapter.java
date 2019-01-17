@@ -39,29 +39,43 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+
         ((ViewHolder)viewHolder).category.setText(mCategories.get(i));
+
+
         RequestOptions requestOptions = new RequestOptions()
                 .error(R.drawable.ic_launcher_background);
+
         Drawable iconResource = null;
-        switch (mCategories.get(i)){
+        switch(mCategories.get(i)){
             case "Music":{
                 iconResource = ContextCompat.getDrawable(mContext, R.drawable.ic_audiotrack_white_24dp);
                 break;
             }
+
             case "Podcasts":{
                 iconResource = ContextCompat.getDrawable(mContext, R.drawable.ic_mic_white_24dp);
                 break;
             }
         }
+
+
         Glide.with(mContext)
                 .setDefaultRequestOptions(requestOptions)
                 .load(iconResource)
                 .into(((ViewHolder)viewHolder).category_icon);
+
     }
 
     @Override
     public int getItemCount() {
         return mCategories.size();
+    }
+
+
+
+    public interface IHomeSelector{
+        void onCategorySelected(int postion);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -70,21 +84,19 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         private ImageView category_icon;
         private IHomeSelector iHomeSelector;
 
+
         public ViewHolder(@NonNull View itemView, IHomeSelector iHomeSelector) {
             super(itemView);
             category = itemView.findViewById(R.id.category_title);
             category_icon = itemView.findViewById(R.id.category_icon);
             this.iHomeSelector = iHomeSelector;
+
             itemView.setOnClickListener(this);
         }
 
         @Override
-        public void onClick(View v) {
+        public void onClick(View view) {
             iHomeSelector.onCategorySelected(getAdapterPosition());
         }
-    }
-
-    public interface IHomeSelector{
-        void onCategorySelected(int position);
     }
 }

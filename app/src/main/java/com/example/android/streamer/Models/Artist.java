@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Artist implements Parcelable {
+
     private String title;
     private String image;
     private String artist_id;
@@ -59,15 +60,16 @@ public class Artist implements Parcelable {
         this.artist_id = artist_id;
     }
 
+
     @Override
     public int describeContents() {
         return 0;
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(title);
-        dest.writeString(image);
-        dest.writeString(artist_id);
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(title);
+        parcel.writeString(image);
+        parcel.writeString(artist_id);
     }
 }

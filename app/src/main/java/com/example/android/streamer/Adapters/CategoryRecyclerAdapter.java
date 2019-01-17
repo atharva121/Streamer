@@ -39,7 +39,7 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.V
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
 
-        ((ViewHolder) viewHolder).title.setText(mArtists.get(i).getTitle());
+        ((ViewHolder)viewHolder).title.setText(mArtists.get(i).getTitle());
 
         RequestOptions options = new RequestOptions()
                 .error(R.drawable.ic_launcher_background);
@@ -47,7 +47,7 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.V
         Glide.with(mContext)
                 .setDefaultRequestOptions(options)
                 .load(mArtists.get(i).getImage())
-                .into(((ViewHolder) viewHolder).image);
+                .into(((ViewHolder)viewHolder).image);
 
     }
 
@@ -55,6 +55,7 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.V
     public int getItemCount() {
         return mArtists.size();
     }
+
 
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -78,7 +79,7 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
-    public interface ICategorySelector {
+    public interface ICategorySelector{
         void onArtistSelected(int position);
     }
 

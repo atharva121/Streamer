@@ -27,7 +27,12 @@ public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeS
 {
 
     private static final String TAG = "HomeFragment";
+
+
+    // UI Components
     private RecyclerView mRecyclerView;
+
+    // Vars
     private HomeRecyclerAdapter mAdapter;
     private ArrayList<String> mCategories = new ArrayList<>();
     private IMainActivity mIMainActivity;
@@ -38,7 +43,7 @@ public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeS
 
     @Override
     public void onHiddenChanged(boolean hidden) {
-        if (!hidden){
+        if(!hidden){
             mIMainActivity.setActionBarTitle(getString(R.string.categories));
         }
     }
@@ -61,16 +66,19 @@ public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeS
         mIMainActivity.setActionBarTitle(getString(R.string.categories));
     }
 
-    private void retriveCategories(){
-        mIMainActivity.showProgressBar();
+    private void retrieveCategories(){
+        mIMainActivity.showPrgressBar();
+
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
         DocumentReference ref = firestore
                 .collection(getString(R.string.collection_audio))
                 .document(getString(R.string.document_categories));
+
         ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()){
+                if(task.isSuccessful()){
                     DocumentSnapshot doc = task.getResult();
                     Log.d(TAG, "onComplete: " + doc);
                     HashMap<String, String> categoriesMap = (HashMap)doc.getData().get("categories");
@@ -86,14 +94,14 @@ public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeS
         mAdapter.notifyDataSetChanged();
     }
 
-    private void initRecyclerView(View view) {
-
+    private void initRecyclerView(View view){
         mRecyclerView = view.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = new HomeRecyclerAdapter(mCategories, getActivity(), this);
+        mAdapter = new HomeRecyclerAdapter(mCategories, getActivity(),  this);
         mRecyclerView.setAdapter(mAdapter);
-        if (mCategories.size() == 0) {
-            retriveCategories();
+
+        if(mCategories.size() == 0){
+            retrieveCategories();
         }
     }
 
@@ -104,8 +112,10 @@ public class HomeFragment extends Fragment implements HomeRecyclerAdapter.IHomeS
     }
 
     @Override
-    public void onCategorySelected(int position) {
+    public void onCategorySelected(int postion) {
         Log.d(TAG, "onCategorySelected: list item is clicked!");
-        mIMainActivity.onCategorySelected(mCategories.get(position));
+        mIMainActivity.onCategorySelected(mCategories.get(postion));
     }
+
+
 }

@@ -5,14 +5,18 @@ import android.support.v4.app.Fragment;
 import java.util.ArrayList;
 
 public class MainActivityFragmentManager {
+
+
     private ArrayList<Fragment> mFragments = new ArrayList<>();
     private static MainActivityFragmentManager instance;
+
     public static MainActivityFragmentManager getInstance(){
-        if (instance == null){
+        if(instance == null){
             instance = new MainActivityFragmentManager();
         }
         return instance;
     }
+
 
     public void addFragment(Fragment fragment){
         mFragments.add(fragment);
@@ -22,8 +26,8 @@ public class MainActivityFragmentManager {
         mFragments.remove(fragment);
     }
 
-    public void removeFragment(int postion){
-        mFragments.remove(postion);
+    public void removeFragment(int position){
+        mFragments.remove(position);
     }
 
     public ArrayList<Fragment> getFragments(){
@@ -33,4 +37,5 @@ public class MainActivityFragmentManager {
     public void removeAllFragments(){
         mFragments.clear();
     }
+
 }

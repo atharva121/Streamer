@@ -79,6 +79,11 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    public MyApplication getMyApplicationInstance() {
+        return mMyApplication;
+    }
+
     private void initUpdateUIBroadcastReceiver(){
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(getString(R.string.broadcast_update_ui));
@@ -109,12 +114,49 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * In a production app you'd want to get this data from a cache.
+     */
+    private void prepareLastPlayedMedia(){
+        showPrgressBar();
+
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        Query query  = firestore
+                .collection(getString(R.string.collection_audio))
+                .document(getString(R.string.document_categories))
+                .collection(getMyPreferenceManager().getLastCategory())
+                .document(getMyPreferenceManager().getLastPlayedArtist())
+                .collection(getString(R.string.collection_content))
+                .orderBy(getString(R.string.field_date_added), Query.Direction.ASCENDING);
+
+        final List<MediaMetadataCompat> mediaItems = new ArrayList<>();
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        MediaMetadataCompat mediaItem = addToMediaList(document);
+                        mediaItems.add(mediaItem);
+                        if(mediaItem.getDescription().getMediaId().equals(getMyPreferenceManager().getLastPlayedMedia())){
+                            getMediaControllerFragment().setMediaTitle(mediaItem);
+                        }
+                    }
+                } else {
+                    Log.d(TAG, "Error getting documents: ", task.getException());
+                }
+                onFinishedGettingPreviousSessionData(mediaItems);
+            }
+        });
+    }
+
     private void initSeekBarBroadcastReceiver(){
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(getString(R.string.broadcast_seekbar_update));
         mSeekbarBroadcastReceiver = new SeekBarBroadcastReceiver();
         registerReceiver(mSeekbarBroadcastReceiver, intentFilter);
     }
+
 
     @Override
     public void onMetadataChanged(MediaMetadataCompat metadata) {
@@ -188,6 +230,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void showPrgressBar() {
+        mProgressBar.setVisibility(View.VISIBLE);
+    }
+
+
+    @Override
     public void playPause() {
         if(mOnAppOpen){
             if (mIsPlaying) {
@@ -211,15 +259,11 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mWasConfigurationChange = true;
-    }
-
-    @Override
-    public MyApplication getMyApplication() {
-        return mMyApplication;
     }
 
     @Override
@@ -242,40 +286,17 @@ public class MainActivity extends AppCompatActivity implements
         getMediaControllerFragment().getMediaSeekBar().disconnectController();
     }
 
-    /**
-     * In a production app you'd want to get this data from a cache.
-     */
-    private void prepareLastPlayedMedia(){
-        showProgressBar();
+    private class UpdateUIBroadcastReceiver extends BroadcastReceiver{
 
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
-        Query query  = firestore
-                .collection(getString(R.string.collection_audio))
-                .document(getString(R.string.document_categories))
-                .collection(getMyPreferenceManager().getLastCategory())
-                .document(getMyPreferenceManager().getLastPlayedArtist())
-                .collection(getString(R.string.collection_content))
-                .orderBy(getString(R.string.field_date_added), Query.Direction.ASCENDING);
-
-        final List<MediaMetadataCompat> mediaItems = new ArrayList<>();
-        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        MediaMetadataCompat mediaItem = addToMediaList(document);
-                        mediaItems.add(mediaItem);
-                        if(mediaItem.getDescription().getMediaId().equals(getMyPreferenceManager().getLastPlayedMedia())){
-                            getMediaControllerFragment().setMediaTitle(mediaItem);
-                        }
-                    }
-                } else {
-                    Log.d(TAG, "Error getting documents: ", task.getException());
-                }
-                onFinishedGettingPreviousSessionData(mediaItems);
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String newMediaId = intent.getStringExtra(getString(R.string.broadcast_new_media_id));
+            Log.d(TAG, "onReceive: CALLED: " + newMediaId);
+            if(getPlaylistFragment() != null){
+                Log.d(TAG, "onReceive: " + mMyApplication.getMediaItem(newMediaId).getDescription().getMediaId());
+                getPlaylistFragment().updateUI(mMyApplication.getMediaItem(newMediaId));
             }
-        });
+        }
     }
 
     private void onFinishedGettingPreviousSessionData(List<MediaMetadataCompat> mediaItems){
@@ -332,6 +353,7 @@ public class MainActivity extends AppCompatActivity implements
         showFragment(fragment, false);
     }
 
+
     private void showFragment(Fragment fragment, boolean backswardsMovement){
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -374,23 +396,17 @@ public class MainActivity extends AppCompatActivity implements
         super.onBackPressed();
     }
 
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("active_fragments", MainActivityFragmentManager.getInstance().getFragments().size());
     }
 
-    private class UpdateUIBroadcastReceiver extends BroadcastReceiver{
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String newMediaId = intent.getStringExtra(getString(R.string.broadcast_new_media_id));
-            Log.d(TAG, "onReceive: CALLED: " + newMediaId);
-            if(getPlaylistFragment() != null){
-                Log.d(TAG, "onReceive: " + mMyApplication.getMediaItem(newMediaId).getDescription().getMediaId());
-                getPlaylistFragment().updateUI(mMyApplication.getMediaItem(newMediaId));
-            }
-        }
+    @Override
+    public void hideProgressBar() {
+        mProgressBar.setVisibility(View.GONE);
     }
 
     private class SeekBarBroadcastReceiver extends BroadcastReceiver {
@@ -404,17 +420,6 @@ public class MainActivity extends AppCompatActivity implements
                 getMediaControllerFragment().getMediaSeekBar().setMax((int)seekMax);
             }
         }
-    }
-
-
-    @Override
-    public void hideProgressBar() {
-        mProgressBar.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void showProgressBar() {
-        mProgressBar.setVisibility(View.VISIBLE);
     }
 
     @Override

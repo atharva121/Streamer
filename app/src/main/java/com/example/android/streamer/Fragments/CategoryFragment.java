@@ -28,11 +28,16 @@ public class CategoryFragment extends Fragment implements CategoryRecyclerAdapte
 {
 
     private static final String TAG = "CategoryFragment";
+
+
+    // UI Components
     private RecyclerView mRecyclerView;
+
+    // Vars
     private CategoryRecyclerAdapter mAdapter;
+    private ArrayList<Artist> mArtists = new ArrayList<>();
     private IMainActivity mIMainActivity;
     private String mSelectedCategory;
-    private ArrayList<Artist> mArtists = new ArrayList<>();
 
     public static CategoryFragment newInstance(String category){
         CategoryFragment categoryFragment = new CategoryFragment();
@@ -44,7 +49,7 @@ public class CategoryFragment extends Fragment implements CategoryRecyclerAdapte
 
     @Override
     public void onHiddenChanged(boolean hidden) {
-        if (!hidden){
+        if(!hidden){
             mIMainActivity.setActionBarTitle(mSelectedCategory);
         }
     }
@@ -52,11 +57,12 @@ public class CategoryFragment extends Fragment implements CategoryRecyclerAdapte
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null){
+        if(getArguments() != null){
             mSelectedCategory = getArguments().getString("category");
         }
         setRetainInstance(true);
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -71,22 +77,25 @@ public class CategoryFragment extends Fragment implements CategoryRecyclerAdapte
     }
 
     private void retrieveArtists(){
-        mIMainActivity.showProgressBar();
+        mIMainActivity.showPrgressBar();
+
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
         Query query = firestore
                 .collection(getString(R.string.collection_audio))
                 .document(getString(R.string.document_categories))
                 .collection(mSelectedCategory);
+
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    for (QueryDocumentSnapshot document : task.getResult()){
+                if(task.isSuccessful()){
+                    for(QueryDocumentSnapshot document: task.getResult()){
                         mArtists.add(document.toObject(Artist.class));
                     }
                 }
-                else {
-                    Log.d(TAG, "onComplete: error getting the documents: " + task.getException());
+                else{
+                    Log.d(TAG, "onComplete: error getting documents: " + task.getException());
                 }
                 updateDataSet();
             }
@@ -98,13 +107,13 @@ public class CategoryFragment extends Fragment implements CategoryRecyclerAdapte
         mAdapter.notifyDataSetChanged();
     }
 
-    private void initRecyclerView(View view) {
-
+    private void initRecyclerView(View view){
         mRecyclerView = view.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new CategoryRecyclerAdapter(getActivity(), mArtists, this);
         mRecyclerView.setAdapter(mAdapter);
-        if (mArtists.size() == 0) {
+
+        if(mArtists.size() == 0){
             retrieveArtists();
         }
     }

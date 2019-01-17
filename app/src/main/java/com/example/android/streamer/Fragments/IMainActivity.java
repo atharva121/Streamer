@@ -7,13 +7,22 @@ import com.example.android.streamer.MyApplication;
 import com.example.android.streamer.Util.MyPreferenceManager;
 
 public interface IMainActivity {
+
     void hideProgressBar();
-    void showProgressBar();
+
+    void showPrgressBar();
+
     void onCategorySelected(String category);
+
     void onArtistSelected(String category, Artist artist);
+
     void setActionBarTitle(String title);
+
     void playPause();
-    MyApplication getMyApplication();
-    void onMediaSelected(String playlistId, MediaMetadataCompat mediaItem, int queuePosition);
+
+    MyApplication getMyApplicationInstance();
+
+    void onMediaSelected(String playlistId, MediaMetadataCompat mediaItem, int position);
+
     MyPreferenceManager getMyPreferenceManager();
 }

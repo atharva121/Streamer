@@ -1,35 +1,27 @@
 {
   "project_info": {
-    "project_number": "776728382706",
-    "firebase_url": "https://streamer-ce0ff.firebaseio.com",
-    "project_id": "streamer-ce0ff",
-    "storage_bucket": "streamer-ce0ff.appspot.com"
+    "project_number": "330172065049",
+    "firebase_url": "https://audiostreamer-8bfdd.firebaseio.com",
+    "project_id": "audiostreamer-8bfdd",
+    "storage_bucket": "audiostreamer-8bfdd.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:776728382706:android:660ebebab05d3cb8",
+        "mobilesdk_app_id": "1:330172065049:android:c9f3a95899014743",
         "android_client_info": {
           "package_name": "com.example.android.streamer"
         }
       },
       "oauth_client": [
         {
-          "client_id": "776728382706-uknaak7s803j9a7ncm1qm97kvp6igub6.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.android.streamer",
-            "certificate_hash": "5f4d997e1615666c1da1467047a4f660df3c5f22"
-          }
-        },
-        {
-          "client_id": "776728382706-8d1u44oig43r88ebd1utl0tatja7qn5c.apps.googleusercontent.com",
+          "client_id": "330172065049-46odoie68nrdjpr7m028ef5c3uleld70.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBVQjSd_CM438BFdUMXEcXeGRjngCg9oJQ"
+          "current_key": "AIzaSyCgQ7DLvBsMbACDMYGGIQbUeMunAsheu2U"
         }
       ],
       "services": {
@@ -37,13 +29,8 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "776728382706-8d1u44oig43r88ebd1utl0tatja7qn5c.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
           "status": 2

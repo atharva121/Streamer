@@ -23,13 +23,25 @@ public class MediaControllerFragment extends Fragment implements
 
 
     private static final String TAG = "MediaControllerFragment";
+
+
+    // UI Components
     private TextView mSongTitle;
     private ImageView mPlayPause;
     private MediaSeekBar mSeekBarAudio;
-    private IMainActivity mIMainActivity;
-    private boolean  mIsPlaying;
-    private MediaMetadataCompat mSelectedMedia;
 
+
+    // Vars
+    private IMainActivity mIMainActivity;
+    private MediaMetadataCompat mSelectedMedia;
+    private boolean mIsPlaying;
+
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
@@ -37,30 +49,37 @@ public class MediaControllerFragment extends Fragment implements
         return inflater.inflate(R.layout.fragment_media_controller, container, false);
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mSongTitle = view.findViewById(R.id.media_song_title);
         mPlayPause = view.findViewById(R.id.play_pause);
         mSeekBarAudio = view.findViewById(R.id.seekbar_audio);
+
         mPlayPause.setOnClickListener(this);
-        if (savedInstanceState != null){
+
+        if(savedInstanceState != null){
             mSelectedMedia = savedInstanceState.getParcelable("selected_media");
-            if (mSelectedMedia != null){
+            if(mSelectedMedia != null){
                 setMediaTitle(mSelectedMedia);
                 setIsPlaying(savedInstanceState.getBoolean("is_playing"));
             }
         }
     }
 
+    public MediaSeekBar getMediaSeekBar(){
+        return mSeekBarAudio;
+    }
+
     @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.play_pause){
+    public void onClick(View view) {
+        if(view.getId() == R.id.play_pause){
             mIMainActivity.playPause();
         }
     }
 
-    public  void setIsPlaying(boolean isPlaying){
-        if (isPlaying){
+    public void setIsPlaying(boolean isPlaying){
+        if(isPlaying){
             Glide.with(getActivity())
                     .load(R.drawable.ic_pause_circle_outline_white_24dp)
                     .into(mPlayPause);
@@ -82,10 +101,6 @@ public class MediaControllerFragment extends Fragment implements
     public void onAttach(Context context) {
         super.onAttach(context);
         mIMainActivity = (IMainActivity) getActivity();
-    }
-
-    public MediaSeekBar getMediaSeekBar(){
-        return mSeekBarAudio;
     }
 
     @Override

@@ -13,11 +13,13 @@ import static com.example.android.streamer.Util.Constants.NOW_PLAYING;
 import static com.example.android.streamer.Util.Constants.PLAYLIST_ID;
 
 public class MyPreferenceManager {
+
     private static final String TAG = "MyPreferenceManager";
+
     private SharedPreferences mPreferences;
 
-    public MyPreferenceManager(Context context) {
-        this.mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+    public MyPreferenceManager(Context mContext) {
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
     }
 
     public String getPlaylistId(){
@@ -80,4 +82,5 @@ public class MyPreferenceManager {
         editor.putString(LAST_ARTIST, artist);
         editor.apply();
     }
+
 }
